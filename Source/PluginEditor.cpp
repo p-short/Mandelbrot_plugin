@@ -14,13 +14,9 @@
 Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    // I would like to push_back an Instance of the Sphere class in to a vector and read from it but am not sure in what .cpp file i should do this. Im pretty muddled up with the scope of everything TBH.
-    
     setSize (600, 400);
-    // add Sphere instance
     addAndMakeVisible(sphere);
     
-
     //add sliders, set range, value ect..
     xPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     xPos_Slider.setRange(-1.0f, 1.0f, 0.01f);
@@ -28,11 +24,50 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     xPos_Slider.addListener(this);
     addAndMakeVisible(xPos_Slider);
     
+    //ypos slider
     yPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     yPos_Slider.setRange(-1.0f, 1.0f, 0.001f);
     yPos_Slider.setValue(0.0f);
     yPos_Slider.addListener(this);
     addAndMakeVisible(yPos_Slider);
+    
+    //need to finish comboboxs
+    //note selection combobox
+    noteSelection.addItem("C", 1);
+    noteSelection.addItem("C#", 2);
+    noteSelection.addItem("D", 3);
+    noteSelection.addItem("D#", 4);
+    noteSelection.addItem("E", 5);
+    noteSelection.addItem("F", 6);
+    noteSelection.addItem("F#", 7);
+    noteSelection.addItem("G", 8);
+    noteSelection.addItem("G#", 9);
+    noteSelection.addItem("A", 10);
+    noteSelection.addItem("A#", 11);
+    noteSelection.addItem("B", 12);
+    noteSelection.setJustificationType(juce::Justification::centred);
+    
+    //octave selection combobox
+    octaveSelection.addItem("0", 1);
+    octaveSelection.addItem("1", 2);
+    octaveSelection.addItem("2", 3);
+    octaveSelection.addItem("3", 4);
+    octaveSelection.addItem("4", 5);
+    octaveSelection.addItem("5", 6);
+    octaveSelection.addItem("6", 7);
+    octaveSelection.addItem("7", 8);
+    octaveSelection.addItem("8", 9);
+    octaveSelection.addItem("9", 10);
+    octaveSelection.addItem("10", 11);
+    octaveSelection.setJustificationType(juce::Justification::centred);
+    
+    //scale selection combobox
+    
+    scaleSelection.addItem("Major 1 Oct", 1);
+    scaleSelection.addItem("Major 2 Oct", 2);
+    scaleSelection.addItem("Minor 1 Oct", 3);
+    scaleSelection.addItem("Minor 2 Oct", 4);
+    scaleSelection.setJustificationType(juce::Justification::centred);
     
     // start timer to create a loop for animation
     Timer::startTimer(60);
@@ -56,9 +91,40 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
 // calling repaint 60 time a second on *this* and  Sphere instance
 void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
 {
+    /*
+     its probaly here I would put the algor that produces the spheres and there positions
+     acording to the mandelbrot maths.
+     
+     first i would create an Sphere instance with the xSlider and ySlider values as the x & y
+     params and push them into an array.
+     
+     then in a for loop ill use that x and y position of that first instance to inform the next
+     X amount of iterations.
+     
+     i.e.---------------------
+     
+     int x = 5;
+     
+     Spheres firstInstance(xSliderVals, ySliderVals);
+     Spheres const_val(0.0, 0.0);
+    
+     myArray.push_back(firstInstance);
+     
+     for (int i = 0; i < x; i++) {
+         myArray.push_back(new Sphere(pow(myArray[i].x, 2) +
+                           -pow(myArray[i].y, 2) +
+                           (pow(const_val.x, 2) + -pow(const_val.y, 2)),
+                           2 * myArray[i].x * myArray[i].y +
+                           2 * const_val.x * const_val.y));
+     }
+     
+     this will be expensive cus its filling a vector with 4 instances then emptying the vector every drawloop
+     this is how i have in working in my JS version.
+    */
     repaint();
     sphere.repaint();
     t += 0.01;
+    //insted of listening for slider values change im just passing thier values directly to the set position function
     sphere.setPosition(xPos_Slider.getValue(), yPos_Slider.getValue());
 }
 

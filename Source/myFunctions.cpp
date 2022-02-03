@@ -9,7 +9,7 @@
 */
 
 #include "myFunctions.h"
-
+//helper functions for trig stuff later on down the road
 
 // return coordinats
 Coord createCoord(float x_, float y_)

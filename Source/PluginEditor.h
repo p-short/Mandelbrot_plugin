@@ -32,11 +32,16 @@ public:
     void sliderValueChanged(juce::Slider* slider) override;
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
+    
     juce::Slider xPos_Slider;
     juce::Slider yPos_Slider;
+    juce::ComboBox noteSelection;
+    juce::ComboBox octaveSelection;
+    juce::ComboBox scaleSelection;
     Spheres sphere;
+    std::vector<Spheres> myArray;
+    // This reference is provided as a quick way for your editor to
+    // access the processor object that created it.
     Mandelbrot_pluginAudioProcessor& audioProcessor;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Mandelbrot_pluginAudioProcessorEditor)
