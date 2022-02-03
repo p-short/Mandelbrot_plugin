@@ -19,8 +19,8 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     setSize (600, 400);
     // add Sphere instance
     addAndMakeVisible(sphere);
-//    S_Instances.push_back(Spheres());
     
+
     //add sliders, set range, value ect..
     xPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     xPos_Slider.setRange(-1.0f, 1.0f, 0.01f);
@@ -29,7 +29,7 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     addAndMakeVisible(xPos_Slider);
     
     yPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    yPos_Slider.setRange(-1.0f, 1.0f, 0.01f);
+    yPos_Slider.setRange(-1.0f, 1.0f, 0.001f);
     yPos_Slider.setValue(0.0f);
     yPos_Slider.addListener(this);
     addAndMakeVisible(yPos_Slider);
@@ -59,6 +59,7 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     repaint();
     sphere.repaint();
     t += 0.01;
+    sphere.setPosition(xPos_Slider.getValue(), yPos_Slider.getValue());
 }
 
 // listen for slider value changes, pass them to variables in Sphere instance
@@ -66,11 +67,11 @@ void Mandelbrot_pluginAudioProcessorEditor::sliderValueChanged(juce::Slider *sli
 {
     if (slider == & xPos_Slider)
     {
-        sphere.xSliderVals = xPos_Slider.getValue();
+        //sphere.xSliderVals = xPos_Slider.getValue();
     }
     else if (slider == & yPos_Slider)
     {
-        sphere.ySliderVals = yPos_Slider.getValue();
+        //sphere.ySliderVals = yPos_Slider.getValue();
     }
 }
 

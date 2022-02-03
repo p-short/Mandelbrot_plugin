@@ -19,19 +19,20 @@ class Spheres  : public juce::Component
 {
 public:
     
-//    std::vector<Spheres> instanceArray;
+    float x;
+    float y;
+    int sphereRadius { 10 };
     
     Spheres();
     ~Spheres() override;
-
+    void setPosition(float x_, float y_);
     void paint (juce::Graphics&) override;
     void resized() override;
-    // variables
-    float xSliderVals {0.0};
-    float ySliderVals {0.0};
-    int sphereRadius { 10 };
-    
+
 private:
   
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Spheres)
 };
+
+
+

@@ -13,6 +13,8 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="AGq1fD" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="iovtVP" name="myFunctions.cpp" compile="1" resource="0" file="Source/myFunctions.cpp"/>
+    <FILE id="f1gB9X" name="myFunctions.h" compile="0" resource="0" file="Source/myFunctions.h"/>
     <FILE id="t2HV1t" name="Spheres.cpp" compile="1" resource="0" file="Source/Spheres.cpp"/>
     <FILE id="wBaNBd" name="Spheres.h" compile="0" resource="0" file="Source/Spheres.h"/>
   </MAINGROUP>
