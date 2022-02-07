@@ -15,7 +15,16 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
     setSize (600, 400);
-    addAndMakeVisible(sphere);
+    
+    for (auto i = 0; i < 4; i++)
+    {
+        sphereArray.push_back(std::make_unique<Spheres>());
+        addAndMakeVisible(*sphereArray.back());
+    }
+    
+//if you comment out "addAndMakeVisible(sphere)", "sphere.setPosition(xPos_Slider.getValue(), yPos_Slider.getValue())" in timerCallback() and "sphere.setBounds(getLocalBounds())" in resize. Its drawn and animated to the UI, how come my vector of spheres is not drawing to the UI at all, I would expect to see 4 spheres drawn over each over in the center of the UI.
+
+//    addAndMakeVisible(sphere);
     
     //add sliders, set range, value ect..
     xPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
@@ -46,6 +55,8 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     noteSelection.addItem("A#", 11);
     noteSelection.addItem("B", 12);
     noteSelection.setJustificationType(juce::Justification::centred);
+//    noteSelection.addListener(this);
+    addAndMakeVisible(noteSelection);
     
     //octave selection combobox
     octaveSelection.addItem("0", 1);
@@ -60,6 +71,8 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     octaveSelection.addItem("9", 10);
     octaveSelection.addItem("10", 11);
     octaveSelection.setJustificationType(juce::Justification::centred);
+//    octaveSelection.addListener(this);
+    addAndMakeVisible(octaveSelection);
     
     //scale selection combobox
     
@@ -68,6 +81,8 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     scaleSelection.addItem("Minor 1 Oct", 3);
     scaleSelection.addItem("Minor 2 Oct", 4);
     scaleSelection.setJustificationType(juce::Justification::centred);
+//    scaleSelection.addListener(this);
+    addAndMakeVisible(scaleSelection);
     
     // start timer to create a loop for animation
     Timer::startTimer(60);
@@ -88,44 +103,19 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     g.drawLine(0, 0, borderRadius * cos(t), borderRadius * sin(t), 2);
 }
 
-// calling repaint 60 time a second on *this* and  Sphere instance
+
 void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
 {
-    /*
-     its probaly here I would put the algor that produces the spheres and there positions
-     acording to the mandelbrot maths.
-     
-     first i would create an Sphere instance with the xSlider and ySlider values as the x & y
-     params and push them into an array.
-     
-     then in a for loop ill use that x and y position of that first instance to inform the next
-     X amount of iterations.
-     
-     i.e.---------------------
-     
-     int x = 5;
-     
-     Spheres firstInstance(xSliderVals, ySliderVals);
-     Spheres const_val(0.0, 0.0);
-    
-     myArray.push_back(firstInstance);
-     
-     for (int i = 0; i < x; i++) {
-         myArray.push_back(new Sphere(pow(myArray[i].x, 2) +
-                           -pow(myArray[i].y, 2) +
-                           (pow(const_val.x, 2) + -pow(const_val.y, 2)),
-                           2 * myArray[i].x * myArray[i].y +
-                           2 * const_val.x * const_val.y));
-     }
-     
-     this will be expensive cus its filling a vector with 4 instances then emptying the vector every drawloop
-     this is how i have in working in my JS version.
-    */
     repaint();
-    sphere.repaint();
+   
+    for (auto& sphere : sphereArray )
+    {
+        sphere->setPosition(xPos_Slider.getValue(), yPos_Slider.getValue());
+    }
+
+//    sphere.setPosition(xPos_Slider.getValue(), yPos_Slider.getValue());
+
     t += 0.01;
-    //insted of listening for slider values change im just passing thier values directly to the set position function
-    sphere.setPosition(xPos_Slider.getValue(), yPos_Slider.getValue());
 }
 
 // listen for slider value changes, pass them to variables in Sphere instance
@@ -133,18 +123,28 @@ void Mandelbrot_pluginAudioProcessorEditor::sliderValueChanged(juce::Slider *sli
 {
     if (slider == & xPos_Slider)
     {
-        //sphere.xSliderVals = xPos_Slider.getValue();
+        //sphere.x = xPos_Slider.getValue();
     }
     else if (slider == & yPos_Slider)
     {
-        //sphere.ySliderVals = yPos_Slider.getValue();
+        //sphere.y = yPos_Slider.getValue();
     }
+}
+
+void Mandelbrot_pluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox* box)
+{
+    
 }
 
 void Mandelbrot_pluginAudioProcessorEditor::resized()
 {
     // set positions
-    sphere.setBounds(getLocalBounds());
+    noteSelection.setBounds(10, 10, 50, 20);
+    for (auto& sphere : sphereArray)
+    {
+        sphere->setBounds (getLocalBounds());
+    }
+//    sphere.setBounds(getLocalBounds());
     xPos_Slider.setBounds(getWidth() / 12, getHeight() / 2 - 100, 20, 200);
     yPos_Slider.setBounds(getWidth() / 12 + 50, getHeight() / 2 - 100, 20, 200);
 }

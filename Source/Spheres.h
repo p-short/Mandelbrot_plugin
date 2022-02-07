@@ -18,19 +18,19 @@
 class Spheres  : public juce::Component
 {
 public:
-    
-    float x;
-    float y;
-    int sphereRadius { 10 };
-    
-    Spheres();
+    Spheres(); //float _x, float _y
     ~Spheres() override;
-    // ive created a function to set the position of the sphere, idealy I would like to pass the x and y to constuctor and do it that way. but it throws an error when i mess with the constructor?
+    
     void setPosition(float x_, float y_);
+    void updatePosition();
     void paint (juce::Graphics&) override;
     void resized() override;
 
 private:
+    
+    float x;
+    float y;
+    int sphereRadius { 10 };
   
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Spheres)
 };

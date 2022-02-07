@@ -13,8 +13,10 @@
 #include "myFunctions.h"
 
 //==============================================================================
-Spheres::Spheres()
+Spheres::Spheres() //(float _x, float _y): x(_x), y(_y)
 {
+    x = 0;
+    y = 0;
 }
 
 Spheres::~Spheres()
@@ -34,6 +36,11 @@ void Spheres::setPosition(float x_, float y_)
     x = magOfVecA * cos(phi);
     y = magOfVecA * sin(phi);
 }
+
+//void Spheres::updatePosition()
+//{
+//
+//}
 
 
 void Spheres::paint (juce::Graphics& g)
