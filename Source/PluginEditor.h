@@ -10,7 +10,9 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "Spheres.h"
+#include "Sphere.h"
+#include "myFunctions.h"
+
 
 //==============================================================================
 /**
@@ -24,7 +26,7 @@ public:
     Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor&);
     ~Mandelbrot_pluginAudioProcessorEditor() override;
     int borderRadius = 180;
-    float t { 0.0 };
+    double t { 0.0 };
     
     /*
      nested vector containing scales for later
@@ -52,8 +54,11 @@ private:
     juce::ComboBox noteSelection;
     juce::ComboBox octaveSelection;
     juce::ComboBox scaleSelection;
-    Spheres sphere;
-    std::vector<std::unique_ptr<Spheres>> sphereArray;
+//    Sphere sphere;
+    Coord cVec = createCoord(0, 0);
+    std::vector<std::unique_ptr<Sphere>> vectorOfSpheres;
+
+    
     
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.

@@ -15,24 +15,27 @@
 //==============================================================================
 /*
 */
-class Spheres  : public juce::Component
+class Sphere  : public juce::Component
 {
 public:
-    Spheres(); //float _x, float _y
-    ~Spheres() override;
+    Sphere(); //float _x, float _y
+    ~Sphere() override;
     
+
     void setPosition(float x_, float y_);
-    void updatePosition();
+    void updatePosition(std::vector<std::unique_ptr<Sphere>>&);
     void paint (juce::Graphics&) override;
     void resized() override;
-
-private:
     
     float x;
     float y;
+    
+private:
+    
+  
     int sphereRadius { 10 };
   
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Spheres)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Sphere)
 };
 
 

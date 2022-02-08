@@ -8,7 +8,8 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-#include "Spheres.h"
+#include "Sphere.h"
+
 
 //==============================================================================
 Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor& p)
@@ -16,16 +17,18 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
 {
     setSize (600, 400);
     
-    for (auto i = 0; i < 4; i++)
+    for (auto i = 0; i < 7; i++)
     {
-        sphereArray.push_back(std::make_unique<Spheres>());
-        addAndMakeVisible(*sphereArray.back());
+        vectorOfSpheres.push_back(std::make_unique<Sphere>());
+        addAndMakeVisible(*vectorOfSpheres.back());
     }
+    
+    resized();
     
 //if you comment out "addAndMakeVisible(sphere)", "sphere.setPosition(xPos_Slider.getValue(), yPos_Slider.getValue())" in timerCallback() and "sphere.setBounds(getLocalBounds())" in resize. Its drawn and animated to the UI, how come my vector of spheres is not drawing to the UI at all, I would expect to see 4 spheres drawn over each over in the center of the UI.
 
-//    addAndMakeVisible(sphere);
-    
+    //addAndMakeVisible(sphere);
+   
     //add sliders, set range, value ect..
     xPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     xPos_Slider.setRange(-1.0f, 1.0f, 0.01f);
@@ -97,10 +100,12 @@ Mandelbrot_pluginAudioProcessorEditor::~Mandelbrot_pluginAudioProcessorEditor()
 void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // drawing big circle with rotating arm
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    g.fillAll (juce::Colours::dimgrey);
+    g.setColour(juce::Colours::black);
+    g.drawEllipse(300 - borderRadius, 200 - borderRadius, borderRadius * 2, borderRadius * 2, 2);
     g.setOrigin(getWidth() / 2, getHeight() / 2);
-    g.drawEllipse(0 - borderRadius, 0 - borderRadius, borderRadius * 2, borderRadius * 2, 2);
     g.drawLine(0, 0, borderRadius * cos(t), borderRadius * sin(t), 2);
+   
 }
 
 
@@ -108,14 +113,20 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
 {
     repaint();
    
-    for (auto& sphere : sphereArray )
+    vectorOfSpheres[0]->setPosition(xPos_Slider.getValue(), yPos_Slider.getValue());
+    
+//    for (int i = 0; i < vectorOfSpheres.size() - 1; i++) {
+//        vectorOfSpheres[i + 1]->x = (pow(vectorOfSpheres[i]->x, 2) + -pow(vectorOfSpheres[i]->y, 2)) +
+//        (pow(cVec.x, 2) + -pow(cVec.y, 2));
+//        vectorOfSpheres[i + 1]->y = 2 * vectorOfSpheres[i]->x * vectorOfSpheres[i]->y + 2 * cVec.x * cVec.y;
+//    }
+    for (int i = 0; i < vectorOfSpheres.size(); i++)
     {
-        sphere->setPosition(xPos_Slider.getValue(), yPos_Slider.getValue());
+        vectorOfSpheres[i]->updatePosition(vectorOfSpheres);
     }
-
-//    sphere.setPosition(xPos_Slider.getValue(), yPos_Slider.getValue());
-
-    t += 0.01;
+    
+    t += 0.05;
+    
 }
 
 // listen for slider value changes, pass them to variables in Sphere instance
@@ -140,11 +151,12 @@ void Mandelbrot_pluginAudioProcessorEditor::resized()
 {
     // set positions
     noteSelection.setBounds(10, 10, 50, 20);
-    for (auto& sphere : sphereArray)
+    for (auto& sphere : vectorOfSpheres)
     {
         sphere->setBounds (getLocalBounds());
     }
-//    sphere.setBounds(getLocalBounds());
+    //sphere.setBounds(getLocalBounds());
+//    my_test.setBounds(0, 0, getWidth(), getHeight() / 2);
     xPos_Slider.setBounds(getWidth() / 12, getHeight() / 2 - 100, 20, 200);
     yPos_Slider.setBounds(getWidth() / 12 + 50, getHeight() / 2 - 100, 20, 200);
 }
