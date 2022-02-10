@@ -21,12 +21,16 @@ class Mandelbrot_pluginAudioProcessorEditor  : public juce::AudioProcessorEditor
                                               ,public juce::Timer
                                               ,public juce::Slider::Listener
                                               ,public juce::ComboBox::Listener
+                                              ,public juce::Button::Listener
 {
 public:
     Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor&);
     ~Mandelbrot_pluginAudioProcessorEditor() override;
-    int borderRadius = 180;
+    int borderRadius = 170;
     double t { 0.0 };
+    double speed { 0.0 };
+    int divBy { 1 };
+    int synchBtnCount { 1 };
     
     /*
      nested vector containing scales for later
@@ -46,14 +50,17 @@ public:
     void timerCallback() override;
     void sliderValueChanged(juce::Slider* slider) override;
     void comboBoxChanged(juce::ComboBox*) override;
+    void buttonClicked(juce::Button* button) override;
 
 private:
     
     juce::Slider xPos_Slider;
     juce::Slider yPos_Slider;
+    juce::Slider BPM_Slider;
     juce::ComboBox noteSelection;
     juce::ComboBox octaveSelection;
     juce::ComboBox scaleSelection;
+    juce::TextButton synchBtn { "Synch" };
 //    Sphere sphere;
     Coord cVec = createCoord(0, 0);
     std::vector<std::unique_ptr<Sphere>> vectorOfSpheres;

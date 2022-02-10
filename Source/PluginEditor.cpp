@@ -15,15 +15,14 @@
 Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    setSize (600, 400);
-    
+   
     for (auto i = 0; i < 7; i++)
     {
         vectorOfSpheres.push_back(std::make_unique<Sphere>());
         addAndMakeVisible(*vectorOfSpheres.back());
     }
     
-    resized();
+//    resized();
     
 //if you comment out "addAndMakeVisible(sphere)", "sphere.setPosition(xPos_Slider.getValue(), yPos_Slider.getValue())" in timerCallback() and "sphere.setBounds(getLocalBounds())" in resize. Its drawn and animated to the UI, how come my vector of spheres is not drawing to the UI at all, I would expect to see 4 spheres drawn over each over in the center of the UI.
 
@@ -31,7 +30,7 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
    
     //add sliders, set range, value ect..
     xPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    xPos_Slider.setRange(-1.0f, 1.0f, 0.01f);
+    xPos_Slider.setRange(-1.0f, 1.0f, 0.001f);
     xPos_Slider.setValue(0.0f);
     xPos_Slider.addListener(this);
     addAndMakeVisible(xPos_Slider);
@@ -42,6 +41,14 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     yPos_Slider.setValue(0.0f);
     yPos_Slider.addListener(this);
     addAndMakeVisible(yPos_Slider);
+    
+    //BMP slider
+    BPM_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
+    BPM_Slider.setTextValueSuffix(" BPM");
+    BPM_Slider.setRange(0, 300, 1);
+    BPM_Slider.setValue(120);
+    BPM_Slider.addListener(this);
+    addAndMakeVisible(BPM_Slider);
     
     //need to finish comboboxs
     //note selection combobox
@@ -87,8 +94,15 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
 //    scaleSelection.addListener(this);
     addAndMakeVisible(scaleSelection);
     
+    //synch button
+    synchBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
+    synchBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
+    addAndMakeVisible(synchBtn);
+    synchBtn.addListener(this);
+    
     // start timer to create a loop for animation
     Timer::startTimer(60);
+    setSize (600, 400);
 }
 
 Mandelbrot_pluginAudioProcessorEditor::~Mandelbrot_pluginAudioProcessorEditor()
@@ -102,10 +116,17 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     // drawing big circle with rotating arm
     g.fillAll (juce::Colours::dimgrey);
     g.setColour(juce::Colours::black);
-    g.drawEllipse(300 - borderRadius, 200 - borderRadius, borderRadius * 2, borderRadius * 2, 2);
-    g.setOrigin(getWidth() / 2, getHeight() / 2);
+    g.drawEllipse(300 - borderRadius, 220 - borderRadius, borderRadius * 2, borderRadius * 2, 2);
+    g.setOrigin(getWidth() / 2, getHeight() / 2 + 20);
     g.drawLine(0, 0, borderRadius * cos(t), borderRadius * sin(t), 2);
-   
+    
+    for (auto i = 0; i < vectorOfSpheres.size() -1; i++)
+    {
+        g.drawLine(vectorOfSpheres[i]->x * 160, vectorOfSpheres[i]->y * -160,
+                   vectorOfSpheres[i +1]->x * 160, vectorOfSpheres[i +1]->y * -160, 1.5);
+    }
+    
+    t += speed;
 }
 
 
@@ -124,9 +145,6 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     {
         vectorOfSpheres[i]->updatePosition(vectorOfSpheres);
     }
-    
-    t += 0.05;
-    
 }
 
 // listen for slider value changes, pass them to variables in Sphere instance
@@ -140,6 +158,10 @@ void Mandelbrot_pluginAudioProcessorEditor::sliderValueChanged(juce::Slider *sli
     {
         //sphere.y = yPos_Slider.getValue();
     }
+    else if (slider == & BPM_Slider)
+    {
+        speed = M_PI * 2 / (60 / (BPM_Slider.getValue() / 4) / divBy * 60);
+    }
 }
 
 void Mandelbrot_pluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox* box)
@@ -147,16 +169,53 @@ void Mandelbrot_pluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox* box)
     
 }
 
+void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
+{
+    synchBtnCount = synchBtnCount % 2;
+    
+    if (button == &synchBtn)
+    {
+        if (synchBtnCount == 0)
+        {
+            synchBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
+            synchBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
+        }
+        
+        else if (synchBtnCount == 1)
+        {
+            synchBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
+            synchBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
+        }
+        std::cout << synchBtnCount;
+        synchBtnCount++;
+    }
+}
+
 void Mandelbrot_pluginAudioProcessorEditor::resized()
 {
     // set positions
-    noteSelection.setBounds(10, 10, 50, 20);
+    
+    //dropdown boxes
+    int spacing = 5;
+    noteSelection.setBounds(spacing, 10, 60, 20);
+    octaveSelection.setBounds(60 + spacing, 10, 60, 20);
+    scaleSelection.setBounds(120 + spacing, 10, 100, 20);
+    
+    //speed slider
+    BPM_Slider.setBounds(360, 10, 240, 20);
+    
+    //synch button
+    synchBtn.setBounds(360, 30, 50, 20);
+    
+    //Sphere instances
     for (auto& sphere : vectorOfSpheres)
     {
         sphere->setBounds (getLocalBounds());
     }
     //sphere.setBounds(getLocalBounds());
 //    my_test.setBounds(0, 0, getWidth(), getHeight() / 2);
+    
+    //Sphere position sliders
     xPos_Slider.setBounds(getWidth() / 12, getHeight() / 2 - 100, 20, 200);
     yPos_Slider.setBounds(getWidth() / 12 + 50, getHeight() / 2 - 100, 20, 200);
 }
