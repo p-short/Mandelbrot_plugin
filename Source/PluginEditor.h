@@ -28,9 +28,10 @@ public:
     ~Mandelbrot_pluginAudioProcessorEditor() override;
     int borderRadius = 170;
     double t { 0.0 };
-    double speed { 0.0 };
-    int divBy { 1 };
-    int synchBtnCount { 1 };
+//    double speed { 0.0 };
+    float divBy { 1.0 };
+//    float fullRotation;
+    int synchBtnCount { 0 };
     
     /*
      nested vector containing scales for later
@@ -57,19 +58,34 @@ private:
     juce::Slider xPos_Slider;
     juce::Slider yPos_Slider;
     juce::Slider BPM_Slider;
+    
     juce::ComboBox noteSelection;
     juce::ComboBox octaveSelection;
     juce::ComboBox scaleSelection;
+    
+    enum class OnState {
+        on,
+        off
+    };
+    
+    OnState synchBtnOnState { OnState::off };
+    OnState doubleSpeedBtnOnState { OnState::off };
+    OnState normalSpeedBtnOnState { OnState::on };
+    OnState halfSpeedBtnOnState { OnState::off };
+    
     juce::TextButton synchBtn { "Synch" };
-//    Sphere sphere;
+    juce::TextButton doubleSpeedBtn { "* 2" };
+    juce::TextButton normalSpeedBtn { "* 1" };
+    juce::TextButton halfSpeedBtn { "/ 2" };
+
     Coord cVec = createCoord(0, 0);
     std::vector<std::unique_ptr<Sphere>> vectorOfSpheres;
 
-    
-    
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     Mandelbrot_pluginAudioProcessor& audioProcessor;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Mandelbrot_pluginAudioProcessorEditor)
 };
+
+

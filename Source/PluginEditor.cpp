@@ -15,20 +15,13 @@
 Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-   
     for (auto i = 0; i < 7; i++)
     {
         vectorOfSpheres.push_back(std::make_unique<Sphere>());
         addAndMakeVisible(*vectorOfSpheres.back());
     }
     
-//    resized();
-    
-//if you comment out "addAndMakeVisible(sphere)", "sphere.setPosition(xPos_Slider.getValue(), yPos_Slider.getValue())" in timerCallback() and "sphere.setBounds(getLocalBounds())" in resize. Its drawn and animated to the UI, how come my vector of spheres is not drawing to the UI at all, I would expect to see 4 spheres drawn over each over in the center of the UI.
-
-    //addAndMakeVisible(sphere);
-   
-    //add sliders, set range, value ect..
+    //xpos slider
     xPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     xPos_Slider.setRange(-1.0f, 1.0f, 0.001f);
     xPos_Slider.setValue(0.0f);
@@ -50,7 +43,6 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     BPM_Slider.addListener(this);
     addAndMakeVisible(BPM_Slider);
     
-    //need to finish comboboxs
     //note selection combobox
     noteSelection.addItem("C", 1);
     noteSelection.addItem("C#", 2);
@@ -100,6 +92,24 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     addAndMakeVisible(synchBtn);
     synchBtn.addListener(this);
     
+    //double speed button
+    doubleSpeedBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
+    doubleSpeedBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
+    addAndMakeVisible(doubleSpeedBtn);
+    doubleSpeedBtn.addListener(this);
+    
+    //normal speed button
+    normalSpeedBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
+    normalSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
+    addAndMakeVisible(normalSpeedBtn);
+    normalSpeedBtn.addListener(this);
+    
+    //half speed button
+    halfSpeedBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
+    halfSpeedBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
+    addAndMakeVisible(halfSpeedBtn);
+    halfSpeedBtn.addListener(this);
+    
     // start timer to create a loop for animation
     Timer::startTimer(60);
     setSize (600, 400);
@@ -125,8 +135,6 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
         g.drawLine(vectorOfSpheres[i]->x * 160, vectorOfSpheres[i]->y * -160,
                    vectorOfSpheres[i +1]->x * 160, vectorOfSpheres[i +1]->y * -160, 1.5);
     }
-    
-    t += speed;
 }
 
 
@@ -145,6 +153,9 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     {
         vectorOfSpheres[i]->updatePosition(vectorOfSpheres);
     }
+    
+    //update speed acording to speed buttons
+    t += M_PI * 2 / (60 / (BPM_Slider.getValue() / 4) / divBy * 60);;
 }
 
 // listen for slider value changes, pass them to variables in Sphere instance
@@ -160,7 +171,7 @@ void Mandelbrot_pluginAudioProcessorEditor::sliderValueChanged(juce::Slider *sli
     }
     else if (slider == & BPM_Slider)
     {
-        speed = M_PI * 2 / (60 / (BPM_Slider.getValue() / 4) / divBy * 60);
+//        speed = fullRotation;
     }
 }
 
@@ -171,23 +182,82 @@ void Mandelbrot_pluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox* box)
 
 void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
 {
-    synchBtnCount = synchBtnCount % 2;
-    
     if (button == &synchBtn)
     {
-        if (synchBtnCount == 0)
+        //eventully add the code to give plug acsess to Abeltons tempo.
+        if (synchBtnOnState == OnState::off)
         {
-            synchBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
-            synchBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
-        }
-        
-        else if (synchBtnCount == 1)
-        {
+            synchBtnOnState = OnState::on;
             synchBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
             synchBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
         }
-        std::cout << synchBtnCount;
-        synchBtnCount++;
+        
+        else if (synchBtnOnState == OnState::on)
+        {
+            synchBtnOnState = OnState::off;
+            synchBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
+            synchBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
+        }
+    }
+    
+    if (button == &doubleSpeedBtn)
+    {
+        divBy = 2;
+        
+        normalSpeedBtnOnState = OnState::off;
+        normalSpeedBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
+        normalSpeedBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
+        
+        halfSpeedBtnOnState = OnState::off;
+        halfSpeedBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
+        halfSpeedBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
+        
+        if (doubleSpeedBtnOnState == OnState::off)
+        {
+            doubleSpeedBtnOnState = OnState::on;
+            doubleSpeedBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
+            doubleSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
+        }
+    }
+    
+    if (button == &normalSpeedBtn)
+    {
+        divBy = 1;
+        
+        doubleSpeedBtnOnState = OnState::off;
+        doubleSpeedBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
+        doubleSpeedBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
+        
+        halfSpeedBtnOnState = OnState::off;
+        halfSpeedBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
+        halfSpeedBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
+        
+        if (normalSpeedBtnOnState == OnState::off)
+        {
+            normalSpeedBtnOnState = OnState::on;
+            normalSpeedBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
+            normalSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
+        }
+    }
+    
+    if (button == &halfSpeedBtn)
+    {
+        divBy = 0.5;
+        
+        doubleSpeedBtnOnState = OnState::off;
+        doubleSpeedBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
+        doubleSpeedBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
+        
+        normalSpeedBtnOnState = OnState::off;
+        normalSpeedBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
+        normalSpeedBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
+        
+        if (halfSpeedBtnOnState == OnState::off)
+        {
+            halfSpeedBtnOnState = OnState::on;
+            halfSpeedBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
+            halfSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
+        }
     }
 }
 
@@ -206,6 +276,15 @@ void Mandelbrot_pluginAudioProcessorEditor::resized()
     
     //synch button
     synchBtn.setBounds(360, 30, 50, 20);
+    
+    //double speed button
+    doubleSpeedBtn.setBounds(410, 30, 50, 20);
+    
+    //normal speed button
+    normalSpeedBtn.setBounds(460, 30, 50, 20);
+    
+    //half speed button
+    halfSpeedBtn.setBounds(510, 30, 50, 20);
     
     //Sphere instances
     for (auto& sphere : vectorOfSpheres)
