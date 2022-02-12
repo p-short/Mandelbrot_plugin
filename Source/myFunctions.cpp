@@ -50,9 +50,11 @@ Coord normalise(Coord v)
 }
 
 //returns the distance between two coords
-float distance(float x0, float y0, float x1, float y1)
+float distance(float x0 ,float y0 , float x1, float y1)
 {
-    return sqrt((x1 - x0 * x1 - x0) + (y1 - y0 * y1 - y0));
+    float dx = x1 - x0;
+    float dy = y1 - y0;
+    return sqrt(dx * dx + dy * dy);
 }
 
 //clamp a value to a min and max so the value stays in that constraint.

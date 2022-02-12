@@ -15,7 +15,7 @@
 Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    for (auto i = 0; i < 7; i++)
+    for (auto i = 0; i < 3; i++)
     {
         vectorOfSpheres.push_back(std::make_unique<Sphere>());
         addAndMakeVisible(*vectorOfSpheres.back());
@@ -57,7 +57,8 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     noteSelection.addItem("A#", 11);
     noteSelection.addItem("B", 12);
     noteSelection.setJustificationType(juce::Justification::centred);
-//    noteSelection.addListener(this);
+    noteSelection.addListener(this);
+    noteSelection.setSelectedId(1);
     addAndMakeVisible(noteSelection);
     
     //octave selection combobox
@@ -73,7 +74,8 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     octaveSelection.addItem("9", 10);
     octaveSelection.addItem("10", 11);
     octaveSelection.setJustificationType(juce::Justification::centred);
-//    octaveSelection.addListener(this);
+    octaveSelection.addListener(this);
+    octaveSelection.setSelectedId(5);
     addAndMakeVisible(octaveSelection);
     
     //scale selection combobox
@@ -83,7 +85,8 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     scaleSelection.addItem("Minor 1 Oct", 3);
     scaleSelection.addItem("Minor 2 Oct", 4);
     scaleSelection.setJustificationType(juce::Justification::centred);
-//    scaleSelection.addListener(this);
+    scaleSelection.addListener(this);
+    scaleSelection.setSelectedId(1);
     addAndMakeVisible(scaleSelection);
     
     //synch button
@@ -132,9 +135,19 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     
     for (auto i = 0; i < vectorOfSpheres.size() -1; i++)
     {
-        g.drawLine(vectorOfSpheres[i]->x * 160, vectorOfSpheres[i]->y * -160,
-                   vectorOfSpheres[i +1]->x * 160, vectorOfSpheres[i +1]->y * -160, 1.5);
+        g.drawLine(vectorOfSpheres[i]->x * 160, vectorOfSpheres[i]->y * 160,
+                   vectorOfSpheres[i +1]->x * 160, vectorOfSpheres[i +1]->y * 160, 1.5);
     }
+    
+    g.setColour(juce::Colours::green);
+    for (auto i = 0; i < vectorOfSpheres.size(); i++)
+    {
+        g.drawLine(vectorOfSpheres[i]->x * 160, vectorOfSpheres[i]->y * 160,
+                   vectorOfSpheres[i]->spx, vectorOfSpheres[i]->spy, 3);
+        
+//        g.drawLine(0, 0, vectorOfSpheres[i]->spx, vectorOfSpheres[i]->spy);
+    }
+    
 }
 
 
@@ -151,8 +164,17 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
 //    }
     for (int i = 0; i < vectorOfSpheres.size(); i++)
     {
+        midiNote = rootNote + scalesVector[scale][i];
         vectorOfSpheres[i]->updatePosition(vectorOfSpheres);
+        if (vectorOfSpheres[i]->checkIntersection(t, vectorOfSpheres[i]->getSphereBool()))
+        {
+                std::cout << "shpere " << i + 1 << " boom" << std::endl;
+                std::cout << midiNote << std::endl;
+                vectorOfSpheres[i]->setSphereBool(false);
+        }
     }
+    
+    
     
     //update speed acording to speed buttons
     t += M_PI * 2 / (60 / (BPM_Slider.getValue() / 4) / divBy * 60);;
@@ -177,6 +199,23 @@ void Mandelbrot_pluginAudioProcessorEditor::sliderValueChanged(juce::Slider *sli
 
 void Mandelbrot_pluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox* box)
 {
+    if (box == &noteSelection)
+    {
+        note = noteSelection.getSelectedId() - 1;
+        updateComboBoxes();
+    }
+    
+    if (box == &octaveSelection)
+    {
+        octave = (octaveSelection.getSelectedId() - 1) * 12;
+        updateComboBoxes();
+    }
+    
+    if (box == &scaleSelection)
+    {
+        scale = scaleSelection.getSelectedId() - 1;
+        updateComboBoxes();
+    }
     
 }
 
@@ -259,6 +298,11 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
             halfSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
         }
     }
+}
+
+void Mandelbrot_pluginAudioProcessorEditor::updateComboBoxes()
+{
+    rootNote = note + octave;
 }
 
 void Mandelbrot_pluginAudioProcessorEditor::resized()

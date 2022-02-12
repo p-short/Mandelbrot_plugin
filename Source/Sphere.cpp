@@ -47,12 +47,58 @@ void Sphere::updatePosition(std::vector<std::unique_ptr<Sphere>>& thing)
     }
 }
 
+bool Sphere::checkIntersection(double &rotatingArm, bool other)
+{
+    Coord cirPos = createCoord(x * 160, y * 160);
+    Coord midPoint = createCoord(0, 0);
+    Coord rotPoint = createCoord(160 * cos(rotatingArm), 160 * sin(rotatingArm));
+    
+    Coord vecA = createVector(cirPos, midPoint);
+    Coord vecB = createVector(rotPoint, midPoint);
+    Coord nVecB = normalise(vecB);
+    
+    double scalarProjection = clampIt(dotProduct(vecA, nVecB), 0, 160);
+    
+    spx = scalarProjection * cos(rotatingArm);
+    spy = scalarProjection * sin(rotatingArm);
+    
+    float dist0 = distance(rotPoint.x, rotPoint.y, cirPos.x, cirPos.y);
+    float dist1 = distance(cirPos.x, cirPos.y, spx, spy);
+    float dist2 = distance(cirPos.x, cirPos.y, midPoint.x, midPoint.y);
+
+    if (dist0 < 160 && dist1 < sphereRadius && other && dist2 > sphereRadius)
+    {
+        return true;
+    }
+    
+    else if (dist0 < 160 && dist1 > sphereRadius)
+    {
+        isIntersecting = true;
+        return false;
+    }
+    
+    else
+    {
+        return false;
+    }
+}
+
+void Sphere::setSphereBool(bool myBool)
+{
+    isIntersecting = myBool;
+}
+
+bool Sphere::getSphereBool()
+{
+    return isIntersecting;
+}
+
 
 void Sphere::paint (juce::Graphics& g)
 {
     g.setOrigin(getWidth() / 2 - 10, getHeight() / 2 - 10 + 20);
     g.setColour(juce::Colour::fromFloatRGBA (1.0f, 0.0f, 0.0f, 0.5f));
-    g.fillEllipse(x * 160, -y * 160, sphereRadius * 2, sphereRadius * 2);
+    g.fillEllipse(x * 160, y * 160, sphereRadius * 2, sphereRadius * 2);
 }
 
 

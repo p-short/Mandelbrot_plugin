@@ -33,6 +33,12 @@ public:
 //    float fullRotation;
     int synchBtnCount { 0 };
     
+    int note;
+    int octave;
+    int scale;
+    int rootNote;
+    int midiNote;
+    
     /*
      nested vector containing scales for later
      scalesArray[0] = major scale 1 oct,
@@ -40,8 +46,8 @@ public:
      scalesArray[2] = minor scale 1 oct,
      scalesArray[3] = minor scale 2 oct
      */
-    const std::vector<std::vector<int> > scalesArray{{0, 2, 4, 5, 7, 9, 11, 12},
-                                                    {0, 2, 4, 5, 7, 9, 11, 12,14, 16, 17, 19, 21, 23, 24},
+    const std::vector<std::vector<int> > scalesVector{{0, 2, 4, 5, 7, 9, 11, 12},
+                                                    {0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24},
                                                     {0, 2, 3, 5, 7, 8, 10, 12},
                                                     {0, 2, 3, 5, 7, 8, 10, 12, 14, 15, 17, 19, 20, 22, 24}};
     
@@ -52,6 +58,7 @@ public:
     void sliderValueChanged(juce::Slider* slider) override;
     void comboBoxChanged(juce::ComboBox*) override;
     void buttonClicked(juce::Button* button) override;
+    void updateComboBoxes();
 
 private:
     
