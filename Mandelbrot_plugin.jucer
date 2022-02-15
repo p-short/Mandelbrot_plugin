@@ -17,6 +17,12 @@
     <FILE id="f1gB9X" name="myFunctions.h" compile="0" resource="0" file="Source/myFunctions.h"/>
     <FILE id="t2HV1t" name="Sphere.cpp" compile="1" resource="0" file="Source/Sphere.cpp"/>
     <FILE id="wBaNBd" name="Sphere.h" compile="0" resource="0" file="Source/Sphere.h"/>
+    <GROUP id="{988B76A8-A23C-9185-81F9-9C781CDF3C33}" name="assets">
+      <FILE id="lvI134" name="Cosine_Wave.png" compile="0" resource="1" file="assets/Cosine_Wave.png"/>
+      <FILE id="m3qoBS" name="Sine_Wave.png" compile="0" resource="1" file="assets/Sine_Wave.png"/>
+      <FILE id="K9E1hQ" name="Slider.png" compile="0" resource="1" file="assets/Slider.png"/>
+      <FILE id="wW2Gdm" name="White_noise.png" compile="0" resource="1" file="assets/White_noise.png"/>
+    </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>

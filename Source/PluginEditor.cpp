@@ -15,7 +15,7 @@
 Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    for (auto i = 0; i < 3; i++)
+    for (auto i = 0; i < 5; i++)
     {
         vectorOfSpheres.push_back(std::make_unique<Sphere>());
         addAndMakeVisible(*vectorOfSpheres.back());
@@ -34,6 +34,20 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     yPos_Slider.setValue(0.0f);
     yPos_Slider.addListener(this);
     addAndMakeVisible(yPos_Slider);
+    
+    //const x offset slider
+    constXOffSet.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
+    constXOffSet.setRange(-1.0f, 1.0f, 0.001f);
+    constXOffSet.setValue(0.0f);
+    constXOffSet.addListener(this);
+    addAndMakeVisible(constXOffSet);
+    
+    //const y offset slider
+    constYOffSet.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
+    constYOffSet.setRange(-1.0f, 1.0f, 0.001f);
+    constYOffSet.setValue(0.0f);
+    constYOffSet.addListener(this);
+    addAndMakeVisible(constYOffSet);
     
     //BMP slider
     BPM_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
@@ -113,6 +127,9 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     addAndMakeVisible(halfSpeedBtn);
     halfSpeedBtn.addListener(this);
     
+    //image button
+    auto sliderImage = juce::ImageCache::getFromMemory(BinaryData::Slider_png, BinaryData::Slider_pngSize);
+    
     // start timer to create a loop for animation
     Timer::startTimer(60);
     setSize (600, 400);
@@ -135,17 +152,17 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     
     for (auto i = 0; i < vectorOfSpheres.size() -1; i++)
     {
-        g.drawLine(vectorOfSpheres[i]->x * 160, vectorOfSpheres[i]->y * 160,
-                   vectorOfSpheres[i +1]->x * 160, vectorOfSpheres[i +1]->y * 160, 1.5);
+        g.drawLine(vectorOfSpheres[i]->getXPos() * 160, vectorOfSpheres[i]->getYPos() * 160,
+                   vectorOfSpheres[i +1]->getXPos() * 160, vectorOfSpheres[i +1]->getYPos() * 160, 1.5);
     }
     
     g.setColour(juce::Colours::green);
+    
     for (auto i = 0; i < vectorOfSpheres.size(); i++)
     {
-        g.drawLine(vectorOfSpheres[i]->x * 160, vectorOfSpheres[i]->y * 160,
+        g.drawLine(vectorOfSpheres[i]->getXPos() * 160, vectorOfSpheres[i]->getYPos() * 160,
                    vectorOfSpheres[i]->spx, vectorOfSpheres[i]->spy, 3);
-        
-//        g.drawLine(0, 0, vectorOfSpheres[i]->spx, vectorOfSpheres[i]->spy);
+    
     }
     
 }
@@ -155,26 +172,21 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
 {
     repaint();
    
-    vectorOfSpheres[0]->setPosition(xPos_Slider.getValue(), yPos_Slider.getValue());
-    
-//    for (int i = 0; i < vectorOfSpheres.size() - 1; i++) {
-//        vectorOfSpheres[i + 1]->x = (pow(vectorOfSpheres[i]->x, 2) + -pow(vectorOfSpheres[i]->y, 2)) +
-//        (pow(cVec.x, 2) + -pow(cVec.y, 2));
-//        vectorOfSpheres[i + 1]->y = 2 * vectorOfSpheres[i]->x * vectorOfSpheres[i]->y + 2 * cVec.x * cVec.y;
-//    }
     for (int i = 0; i < vectorOfSpheres.size(); i++)
     {
         midiNote = rootNote + scalesVector[scale][i];
+        vectorOfSpheres[i]->setPosition(xPos_Slider.getValue(), yPos_Slider.getValue(),
+                                        constXOffSet.getValue(), constYOffSet.getValue());
         vectorOfSpheres[i]->updatePosition(vectorOfSpheres);
+        vectorOfSpheres[i]->limitSphere();
+        
         if (vectorOfSpheres[i]->checkIntersection(t, vectorOfSpheres[i]->getSphereBool()))
         {
-                std::cout << "shpere " << i + 1 << " boom" << std::endl;
-                std::cout << midiNote << std::endl;
+                //std::cout << "shpere " << i + 1 << " boom" << std::endl;
+                //std::cout << midiNote << std::endl;
                 vectorOfSpheres[i]->setSphereBool(false);
         }
     }
-    
-    
     
     //update speed acording to speed buttons
     t += M_PI * 2 / (60 / (BPM_Slider.getValue() / 4) / divBy * 60);;
@@ -330,15 +342,19 @@ void Mandelbrot_pluginAudioProcessorEditor::resized()
     //half speed button
     halfSpeedBtn.setBounds(510, 30, 50, 20);
     
+    //image button
+//    myImageBtn.setBounds(100, 350, 50, 30);
+    
     //Sphere instances
     for (auto& sphere : vectorOfSpheres)
     {
         sphere->setBounds (getLocalBounds());
     }
-    //sphere.setBounds(getLocalBounds());
-//    my_test.setBounds(0, 0, getWidth(), getHeight() / 2);
     
     //Sphere position sliders
-    xPos_Slider.setBounds(getWidth() / 12, getHeight() / 2 - 100, 20, 200);
-    yPos_Slider.setBounds(getWidth() / 12 + 50, getHeight() / 2 - 100, 20, 200);
+    xPos_Slider.setBounds(22.5, getHeight() / 2 - 100, 20, 200);
+    yPos_Slider.setBounds(87.5, getHeight() / 2 - 100, 20, 200);
+    
+    constXOffSet.setBounds(492.5, getHeight() / 2 - 100, 20, 200);
+    constYOffSet.setBounds(555.5, getHeight() / 2 - 100, 20, 200);
 }

@@ -22,6 +22,7 @@ class Mandelbrot_pluginAudioProcessorEditor  : public juce::AudioProcessorEditor
                                               ,public juce::Slider::Listener
                                               ,public juce::ComboBox::Listener
                                               ,public juce::Button::Listener
+                                              
 {
 public:
     Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor&);
@@ -65,6 +66,8 @@ private:
     juce::Slider xPos_Slider;
     juce::Slider yPos_Slider;
     juce::Slider BPM_Slider;
+    juce::Slider constXOffSet;
+    juce::Slider constYOffSet;
     
     juce::ComboBox noteSelection;
     juce::ComboBox octaveSelection;
@@ -85,7 +88,7 @@ private:
     juce::TextButton normalSpeedBtn { "* 1" };
     juce::TextButton halfSpeedBtn { "/ 2" };
 
-    Coord cVec = createCoord(0, 0);
+//    juce::ShapeButton myShapedBtn;
     std::vector<std::unique_ptr<Sphere>> vectorOfSpheres;
 
     // This reference is provided as a quick way for your editor to
