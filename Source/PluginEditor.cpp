@@ -156,14 +156,14 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
                    vectorOfSpheres[i +1]->getXPos() * 160, vectorOfSpheres[i +1]->getYPos() * 160, 1.5);
     }
     
-    g.setColour(juce::Colours::green);
-    
-    for (auto i = 0; i < vectorOfSpheres.size(); i++)
-    {
-        g.drawLine(vectorOfSpheres[i]->getXPos() * 160, vectorOfSpheres[i]->getYPos() * 160,
-                   vectorOfSpheres[i]->spx, vectorOfSpheres[i]->spy, 3);
-    
-    }
+//    g.setColour(juce::Colours::green);
+//
+//    for (auto i = 0; i < vectorOfSpheres.size(); i++)
+//    {
+//        g.drawLine(vectorOfSpheres[i]->getXPos() * 160, vectorOfSpheres[i]->getYPos() * 160,
+//                   vectorOfSpheres[i]->spx, vectorOfSpheres[i]->spy, 3);
+//
+//    }
     
 }
 
@@ -182,7 +182,8 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
         
         if (vectorOfSpheres[i]->checkIntersection(t, vectorOfSpheres[i]->getSphereBool()))
         {
-                //std::cout << "shpere " << i + 1 << " boom" << std::endl;
+            
+//                std::cout << "shpere " << i + 1 << " boom" << std::endl;
                 //std::cout << midiNote << std::endl;
                 vectorOfSpheres[i]->setSphereBool(false);
         }

@@ -52,6 +52,7 @@ public:
                                                     {0, 2, 3, 5, 7, 8, 10, 12},
                                                     {0, 2, 3, 5, 7, 8, 10, 12, 14, 15, 17, 19, 20, 22, 24}};
     
+    
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -90,6 +91,8 @@ private:
 
 //    juce::ShapeButton myShapedBtn;
     std::vector<std::unique_ptr<Sphere>> vectorOfSpheres;
+    juce::MidiBuffer midBuf;
+   
 
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.

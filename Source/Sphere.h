@@ -22,7 +22,6 @@ public:
     Sphere(); //float _x, float _y
     ~Sphere() override;
     
-
     void setPosition(float x_, float y_, float cx_, float cy_);
     void updatePosition(std::vector<std::unique_ptr<Sphere>>&);
     void limitSphere();

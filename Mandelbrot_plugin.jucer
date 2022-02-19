@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="s8k9cF" name="Mandelbrot_plugin" projectType="audioplug"
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
-              jucerFormatVersion="1" pluginCharacteristicsValue="pluginIsMidiEffectPlugin,pluginProducesMidiOut">
+              jucerFormatVersion="1" pluginCharacteristicsValue="pluginProducesMidiOut,pluginWantsMidiIn">
   <MAINGROUP id="CEGzYF" name="Mandelbrot_plugin">
     <GROUP id="{96806CB1-2C3B-6F5D-0088-0469239527A6}" name="Source">
       <FILE id="rn9eWr" name="PluginProcessor.cpp" compile="1" resource="0"

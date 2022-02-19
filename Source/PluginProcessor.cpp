@@ -22,6 +22,7 @@ Mandelbrot_pluginAudioProcessor::Mandelbrot_pluginAudioProcessor()
                        )
 #endif
 {
+      
 }
 
 Mandelbrot_pluginAudioProcessor::~Mandelbrot_pluginAudioProcessor()
@@ -132,7 +133,10 @@ bool Mandelbrot_pluginAudioProcessor::isBusesLayoutSupported (const BusesLayout&
 void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     buffer.clear();
-    processedBuffer.clear();
+//    processedBuffer.clear();
+    
+    auto message = juce::MidiMessage::noteOn(1, 60, 0.5f);
+    midiMessages.addEvent(message, 1000);
     
     juce::MidiBuffer::Iterator it(midiMessages);
     juce::MidiMessage currentMessage;
@@ -140,13 +144,15 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     
     while (it.getNextEvent(currentMessage, samplePos))
     {
-        if (currentMessage.isNoteOnOrOff())
-        {
-            currentMessage.setNoteNumber(50);
-        }
-        processedBuffer.addEvent(currentMessage, samplePos);
+        
+        std::cout << currentMessage.getDescription();
+//        if (currentMessage.isNoteOnOrOff())
+//        {
+//            currentMessage.setNoteNumber(50);
+//        }
+//        processedBuffer.addEvent(currentMessage, samplePos);
     }
-    midiMessages.swapWith(processedBuffer);
+//    midiMessages.swapWith(processedBuffer);
 }
 
 //==============================================================================
