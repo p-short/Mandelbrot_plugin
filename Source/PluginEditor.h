@@ -32,25 +32,39 @@ public:
 //    double speed { 0.0 };
     float divBy { 1.0 };
 //    float fullRotation;
-    int synchBtnCount { 0 };
+//    int synchBtnCount { 0 };
     
     int note;
     int octave;
     int scale;
     int rootNote;
     int midiNote;
+    int btnCount { 0 };
     
-    /*
-     nested vector containing scales for later
-     scalesArray[0] = major scale 1 oct,
-     scalesArray[1] = major scale 2 oct,
-     scalesArray[2] = minor scale 1 oct,
-     scalesArray[3] = minor scale 2 oct
-     */
-    const std::vector<std::vector<int> > scalesVector{{0, 2, 4, 5, 7, 9, 11, 12},
-                                                    {0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24},
-                                                    {0, 2, 3, 5, 7, 8, 10, 12},
-                                                    {0, 2, 3, 5, 7, 8, 10, 12, 14, 15, 17, 19, 20, 22, 24}};
+    juce::Image sliderImage;
+    juce::Image sinImage;
+    juce::Image cosImage;
+    juce::Image noiseImage;
+    
+    float xPos { 0 };
+    float yPos { 0 };
+    float cxPos { 0 };
+    float cyPos { 0 };
+    float xFreq { 0 };
+    
+    std::string xMode;
+//    
+//    /*
+//     nested vector containing scales for later
+//     scalesArray[0] = major scale 1 oct,
+//     scalesArray[1] = major scale 2 oct,
+//     scalesArray[2] = minor scale 1 oct,
+//     scalesArray[3] = minor scale 2 oct
+//     */
+//    const std::vector<std::vector<int> > scalesVector{{0, 2, 4, 5, 7, 9, 11, 12},
+//                                                    {0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24},
+//                                                    {0, 2, 3, 5, 7, 8, 10, 12},
+//                                                    {0, 2, 3, 5, 7, 8, 10, 12, 14, 15, 17, 19, 20, 22, 24}};
     
     
     //==============================================================================
@@ -88,8 +102,12 @@ private:
     juce::TextButton doubleSpeedBtn { "* 2" };
     juce::TextButton normalSpeedBtn { "* 1" };
     juce::TextButton halfSpeedBtn { "/ 2" };
-
-//    juce::ShapeButton myShapedBtn;
+    
+    juce::ImageComponent btnImageComp;
+    juce::TextButton xModBtn;
+    juce::Slider xModSpeedSlider;
+    juce::Slider xModAmpSlider;
+    
     std::vector<std::unique_ptr<Sphere>> vectorOfSpheres;
     juce::MidiBuffer midBuf;
    

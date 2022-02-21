@@ -22,7 +22,11 @@ Mandelbrot_pluginAudioProcessor::Mandelbrot_pluginAudioProcessor()
                        )
 #endif
 {
-      
+    for (int i = 0; i < 8; i++)
+    {
+        sphereLogicVector.push_back(std::make_unique<SphereLogic>());
+    }
+    
 }
 
 Mandelbrot_pluginAudioProcessor::~Mandelbrot_pluginAudioProcessor()
@@ -134,9 +138,23 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
 {
     buffer.clear();
 //    processedBuffer.clear();
-    
-    auto message = juce::MidiMessage::noteOn(1, 60, 0.5f);
-    midiMessages.addEvent(message, 1000);
+   
+    for (int i = 0; i < sphereLogicVector.size(); i++)
+    {
+        sphereLogicVector[i]->setPosition(apx_pos, apy_pos, apcx_pos, apcy_pos);
+        sphereLogicVector[i]->updatePosition(sphereLogicVector);
+        sphereLogicVector[i]->limitSphere();
+        
+        if (sphereLogicVector[i]->checkIntersection(inc, sphereLogicVector[i]->getSphereBool()))
+        {
+            //add midi event
+            midiNote = apRootNote + scalesVector[apScale][i];
+            auto message = juce::MidiMessage::noteOn(1, midiNote, 0.5f);
+            auto timeStamp = message.getTimeStamp();
+            midiMessages.addEvent(message, timeStamp);
+            sphereLogicVector[i]->setSphereBool(false);
+        }
+    }
     
     juce::MidiBuffer::Iterator it(midiMessages);
     juce::MidiMessage currentMessage;
@@ -145,7 +163,13 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     while (it.getNextEvent(currentMessage, samplePos))
     {
         
-        std::cout << currentMessage.getDescription();
+        std::cout << currentMessage.getDescription() << "\n";
+        
+        if (currentMessage.isNoteOnOrOff ())
+        {
+            int note = currentMessage.getNoteNumber ();
+            currentMessage.setNoteNumber (note); // transpose it
+        }
 //        if (currentMessage.isNoteOnOrOff())
 //        {
 //            currentMessage.setNoteNumber(50);

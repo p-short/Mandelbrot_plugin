@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="s8k9cF" name="Mandelbrot_plugin" projectType="audioplug"
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
-              jucerFormatVersion="1" pluginCharacteristicsValue="pluginProducesMidiOut,pluginWantsMidiIn">
+              jucerFormatVersion="1" pluginCharacteristicsValue="pluginProducesMidiOut">
   <MAINGROUP id="CEGzYF" name="Mandelbrot_plugin">
     <GROUP id="{96806CB1-2C3B-6F5D-0088-0469239527A6}" name="Source">
       <FILE id="rn9eWr" name="PluginProcessor.cpp" compile="1" resource="0"
@@ -17,6 +17,8 @@
     <FILE id="f1gB9X" name="myFunctions.h" compile="0" resource="0" file="Source/myFunctions.h"/>
     <FILE id="t2HV1t" name="Sphere.cpp" compile="1" resource="0" file="Source/Sphere.cpp"/>
     <FILE id="wBaNBd" name="Sphere.h" compile="0" resource="0" file="Source/Sphere.h"/>
+    <FILE id="Pa9PAe" name="sphereLogic.cpp" compile="1" resource="0" file="Source/sphereLogic.cpp"/>
+    <FILE id="fSbQC8" name="sphereLogic.h" compile="0" resource="0" file="Source/sphereLogic.h"/>
     <GROUP id="{988B76A8-A23C-9185-81F9-9C781CDF3C33}" name="assets">
       <FILE id="lvI134" name="Cosine_Wave.png" compile="0" resource="1" file="assets/Cosine_Wave.png"/>
       <FILE id="m3qoBS" name="Sine_Wave.png" compile="0" resource="1" file="assets/Sine_Wave.png"/>

@@ -15,7 +15,7 @@
 Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    for (auto i = 0; i < 5; i++)
+    for (auto i = 0; i < 8; i++)
     {
         vectorOfSpheres.push_back(std::make_unique<Sphere>());
         addAndMakeVisible(*vectorOfSpheres.back());
@@ -128,7 +128,37 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     halfSpeedBtn.addListener(this);
     
     //image button
-    auto sliderImage = juce::ImageCache::getFromMemory(BinaryData::Slider_png, BinaryData::Slider_pngSize);
+    sliderImage = juce::ImageCache::getFromMemory(BinaryData::Slider_png, BinaryData::Slider_pngSize);
+    sinImage = juce::ImageCache::getFromMemory(BinaryData::Sine_Wave_png, BinaryData::Sine_Wave_pngSize);
+    cosImage = juce::ImageCache::getFromMemory(BinaryData::Cosine_Wave_png, BinaryData::Cosine_Wave_pngSize);
+    noiseImage = juce::ImageCache::getFromMemory(BinaryData::White_noise_png, BinaryData::White_noise_pngSize);
+    
+    btnImageComp.setImage(sliderImage);
+    addAndMakeVisible(btnImageComp);
+    
+    // x mod button
+   
+    xModBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colour::fromFloatRGBA (1.0f, 1.0f, 1.0f, 0.0f));
+    addAndMakeVisible(xModBtn);
+    xModBtn.addListener(this);
+    
+    //x mod speed slider
+    xModSpeedSlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
+    xModSpeedSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    xModSpeedSlider.setRange(0.0f, 0.5f, 0.001f);
+    xModSpeedSlider.setValue(0.0f);
+    xModSpeedSlider.addListener(this);
+    addAndMakeVisible(xModSpeedSlider);
+    
+    //x mod amp slider
+    xModAmpSlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
+    xModAmpSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    xModAmpSlider.setRange(0.0f, 1.0f, 0.001f);
+    xModAmpSlider.setValue(1.0f);
+    xModAmpSlider.addListener(this);
+    addAndMakeVisible(xModAmpSlider);
+    
+    xMode = "slider";
     
     // start timer to create a loop for animation
     Timer::startTimer(60);
@@ -144,7 +174,7 @@ Mandelbrot_pluginAudioProcessorEditor::~Mandelbrot_pluginAudioProcessorEditor()
 void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // drawing big circle with rotating arm
-    g.fillAll (juce::Colours::dimgrey);
+    g.fillAll (juce::Colours::lightgrey);
     g.setColour(juce::Colours::black);
     g.drawEllipse(300 - borderRadius, 220 - borderRadius, borderRadius * 2, borderRadius * 2, 2);
     g.setOrigin(getWidth() / 2, getHeight() / 2 + 20);
@@ -171,11 +201,34 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
 void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
 {
     repaint();
+    
+    // remember to send these to audio process to collision detection matches up.
+    if (xMode == "slider")
+    {
+        xPos = xPos_Slider.getValue();
+    }
+    
+    else if (xMode == "sin")
+    {
+        xPos = sin(xFreq) * xModAmpSlider.getValue();
+    }
+    
+    //xFreq logic
+    
+    if (xMode != "slider")
+    {
+        xFreq += xModSpeedSlider.getValue();
+    }
+    
+    else
+    {
+        xFreq = 0;
+    }
    
     for (int i = 0; i < vectorOfSpheres.size(); i++)
     {
-        midiNote = rootNote + scalesVector[scale][i];
-        vectorOfSpheres[i]->setPosition(xPos_Slider.getValue(), yPos_Slider.getValue(),
+//        midiNote = rootNote + scalesVector[scale][i];
+        vectorOfSpheres[i]->setPosition(xPos, yPos_Slider.getValue(),
                                         constXOffSet.getValue(), constYOffSet.getValue());
         vectorOfSpheres[i]->updatePosition(vectorOfSpheres);
         vectorOfSpheres[i]->limitSphere();
@@ -190,7 +243,8 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     }
     
     //update speed acording to speed buttons
-    t += M_PI * 2 / (60 / (BPM_Slider.getValue() / 4) / divBy * 60);;
+    t += M_PI * 2 / (60 / (BPM_Slider.getValue() / 4) / divBy * 60);
+    audioProcessor.inc = t;
 }
 
 // listen for slider value changes, pass them to variables in Sphere instance
@@ -198,15 +252,23 @@ void Mandelbrot_pluginAudioProcessorEditor::sliderValueChanged(juce::Slider *sli
 {
     if (slider == & xPos_Slider)
     {
-        //sphere.x = xPos_Slider.getValue();
+        audioProcessor.apx_pos = xPos;
     }
     else if (slider == & yPos_Slider)
     {
-        //sphere.y = yPos_Slider.getValue();
+        audioProcessor.apy_pos = yPos_Slider.getValue();
     }
     else if (slider == & BPM_Slider)
     {
-//        speed = fullRotation;
+        //speed = fullRotation;
+    }
+    else if (slider == & constXOffSet)
+    {
+        audioProcessor.apcx_pos = constXOffSet.getValue();
+    }
+    else if (slider == & constYOffSet)
+    {
+        audioProcessor.apcy_pos = constYOffSet.getValue();
     }
 }
 
@@ -227,6 +289,7 @@ void Mandelbrot_pluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox* box)
     if (box == &scaleSelection)
     {
         scale = scaleSelection.getSelectedId() - 1;
+        audioProcessor.apScale = scaleSelection.getSelectedId() - 1;
         updateComboBoxes();
     }
     
@@ -311,11 +374,34 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
             halfSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
         }
     }
+    
+    if (button == &xModBtn)
+    {
+        btnCount = btnCount % 4;
+        switch(btnCount) {
+            case 0:
+                //if button == 0 set btn image to sinwave & change xMode to = "sin"
+                xMode = "sin";
+                btnImageComp.setImage(sinImage);
+                break;
+            case 1:
+                btnImageComp.setImage(cosImage);
+                break;
+            case 2:
+                btnImageComp.setImage(noiseImage);
+                break;
+            case 3:
+                btnImageComp.setImage(sliderImage);
+                break;
+        }
+        btnCount++;
+    }
 }
 
 void Mandelbrot_pluginAudioProcessorEditor::updateComboBoxes()
 {
-    rootNote = note + octave;
+//    rootNote = note + octave;
+    audioProcessor.apRootNote = note + octave;
 }
 
 void Mandelbrot_pluginAudioProcessorEditor::resized()
@@ -344,7 +430,17 @@ void Mandelbrot_pluginAudioProcessorEditor::resized()
     halfSpeedBtn.setBounds(510, 30, 50, 20);
     
     //image button
-//    myImageBtn.setBounds(100, 350, 50, 30);
+    btnImageComp.setBounds(10, 350, 40, 30);
+    
+    //x mod button
+    xModBtn.setBounds(10, 350, 40, 30);
+    
+    //x mod speed slider
+    xModSpeedSlider.setBounds(10, 300, 40, 20);
+    
+    //x mod amp slider
+    
+    xModAmpSlider.setBounds(10, 325, 40, 20);
     
     //Sphere instances
     for (auto& sphere : vectorOfSpheres)
