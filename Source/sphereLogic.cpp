@@ -54,9 +54,9 @@ void SphereLogic::limitSphere()
 
 bool SphereLogic::checkIntersection(double &rotatingArm, bool other)
 {
-    scaledPos = createCoord(x * 170, y * 170);
+    scaledPos = createCoord(x * 160, y * 160);
     //    Coord midPoint = createCoord(0, 0);
-    rotationPoint = createCoord(170 * cos(rotatingArm), 170 * sin(rotatingArm));
+    rotationPoint = createCoord(160 * cos(rotatingArm), 160 * sin(rotatingArm));
     
     newVecA = createVector(scaledPos, centPoint);
     //    Coord vecB = createVector(rotPoint, midPoint);

@@ -12,6 +12,9 @@
 #include "PluginProcessor.h"
 #include "Sphere.h"
 #include "myFunctions.h"
+#include "MyBtn.h"
+
+
 
 
 //==============================================================================
@@ -50,9 +53,12 @@ public:
     float yPos { 0 };
     float cxPos { 0 };
     float cyPos { 0 };
+    
     float xFreq { 0 };
+    float yFreq { 0 };
     
     std::string xMode;
+    std::string yMode;
 //    
 //    /*
 //     nested vector containing scales for later
@@ -107,6 +113,15 @@ private:
     juce::TextButton xModBtn;
     juce::Slider xModSpeedSlider;
     juce::Slider xModAmpSlider;
+    
+    MyBtn myBtn_one;
+    MyBtn myBtn_two;
+    MyBtn myBtn_three;
+    MyBtn myBtn_four;
+    
+    void btnOneIsClicked();
+    void btnTwoIsClicked();
+
     
     std::vector<std::unique_ptr<Sphere>> vectorOfSpheres;
     juce::MidiBuffer midBuf;
