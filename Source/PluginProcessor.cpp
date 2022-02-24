@@ -22,7 +22,23 @@ Mandelbrot_pluginAudioProcessor::Mandelbrot_pluginAudioProcessor()
                        )
 #endif
 {
-    for (int i = 0; i < 8; i++)
+    //store the size of first vector in 2d vector in variable
+    auto maxVectorSize = scalesVector[0].size();
+    
+    //loop through the size of each vector within the 2d vector and
+    //if the current vector size is greater than the value stored in the variable
+    //swap.
+    for (int i = 1; i < scalesVector.size(); i++)
+    {
+        if (scalesVector[i].size() > maxVectorSize)
+        {
+            maxVectorSize = scalesVector[i].size();
+        }
+    }
+    
+    //use the maximum vector size stored in variable to produce
+    //an aproprate amount of sphere instances
+    for (int i = 0; i < maxVectorSize; i++)
     {
         sphereLogicVector.push_back(std::make_unique<SphereLogic>());
     }
@@ -138,8 +154,10 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
 {
     buffer.clear();
 //    processedBuffer.clear();
+    
+//    std::cout << scalesVector[apScale].size() << "\n";
    
-    for (int i = 0; i < sphereLogicVector.size(); i++)
+    for (int i = 0; i < scalesVector[apScale].size(); i++)
     {
         sphereLogicVector[i]->setPosition(apx_pos, apy_pos, apcx_pos, apcy_pos);
         sphereLogicVector[i]->updatePosition(sphereLogicVector);
@@ -163,13 +181,13 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     while (it.getNextEvent(currentMessage, samplePos))
     {
         
-        std::cout << currentMessage.getDescription() << "\n";
+//        std::cout << currentMessage.getDescription() << "\n";
         
-        if (currentMessage.isNoteOnOrOff ())
-        {
-            int note = currentMessage.getNoteNumber ();
-            currentMessage.setNoteNumber (note); // transpose it
-        }
+//        if (currentMessage.isNoteOnOrOff ())
+//        {
+//            int note = currentMessage.getNoteNumber ();
+//            currentMessage.setNoteNumber (note); // transpose it
+//        }
 //        if (currentMessage.isNoteOnOrOff())
 //        {
 //            currentMessage.setNoteNumber(50);
@@ -203,6 +221,14 @@ void Mandelbrot_pluginAudioProcessor::setStateInformation (const void* data, int
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 }
+
+//void Mandelbrot_pluginAudioProcessor::paint (juce::Graphics& g)
+//{
+//    g.setColour(juce::Colours::black);
+//    g.drawEllipse(200, 200, 40, 40, 1);
+//}
+
+
 
 //==============================================================================
 // This creates new instances of the plugin..

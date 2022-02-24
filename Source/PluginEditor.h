@@ -56,9 +56,13 @@ public:
     
     float xFreq { 0 };
     float yFreq { 0 };
+    float cxFreq { 0 };
+    float cyFreq { 0 };
     
     std::string xMode;
     std::string yMode;
+    std::string cxMode;
+    std::string cyMode;
 //    
 //    /*
 //     nested vector containing scales for later
@@ -121,12 +125,12 @@ private:
     
     void btnOneIsClicked();
     void btnTwoIsClicked();
+    void btnThreeIsClicked();
+    void btnFourIsClicked();
 
-    
     std::vector<std::unique_ptr<Sphere>> vectorOfSpheres;
-    juce::MidiBuffer midBuf;
+//    juce::MidiBuffer midBuf;
    
-
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     Mandelbrot_pluginAudioProcessor& audioProcessor;
