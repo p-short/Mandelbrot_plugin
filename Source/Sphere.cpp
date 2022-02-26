@@ -112,11 +112,11 @@ float Sphere::getYPos()
 
 void Sphere::paint (juce::Graphics& g)
 {
-    x = magVecA * cos(phi);
-    y = magVecA * sin(phi);
-    g.setOrigin(getWidth() / 2 - 10, getHeight() / 2 - 10 + 20);
-    g.setColour(juce::Colour::fromFloatRGBA (1.0f, 0.0f, 0.0f, 0.5f));
-    g.fillEllipse(x * 160, y * 160, sphereRadius * 2, sphereRadius * 2);
+//    x = magVecA * cos(phi);
+//    y = magVecA * sin(phi);
+//    g.setOrigin(getWidth() / 2 - 10, getHeight() / 2 - 10 + 20);
+//    g.setColour(juce::Colour::fromFloatRGBA (1.0f, 0.0f, 0.0f, 0.5f));
+//    g.fillEllipse(x * 160, y * 160, sphereRadius * 2, sphereRadius * 2);
 
 }
 

@@ -43,7 +43,7 @@ MyBtn::MyBtn()
     ampSlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
     ampSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     ampSlider.setRange(0.0, 1.0, 0.001);
-    ampSlider.setValue(1.0);
+    ampSlider.setValue(0.0);
     addAndMakeVisible(ampSlider);
     ampSlider.addListener(this);
 }

@@ -28,11 +28,12 @@ Mandelbrot_pluginAudioProcessor::Mandelbrot_pluginAudioProcessor()
     //loop through the size of each vector within the 2d vector and
     //if the current vector size is greater than the value stored in the variable
     //swap.
-    for (int i = 1; i < scalesVector.size(); i++)
+    for (int i = 0; i < scalesVector.size(); i++)
     {
         if (scalesVector[i].size() > maxVectorSize)
         {
             maxVectorSize = scalesVector[i].size();
+            //max VectorSize currently would be 15 (0 - 14);
         }
     }
     
@@ -155,22 +156,25 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     buffer.clear();
 //    processedBuffer.clear();
     
-//    std::cout << scalesVector[apScale].size() << "\n";
-   
+    if (apScale <= 3)
+    {
+//        std::cout << apScale << "\n";
+    
     for (int i = 0; i < scalesVector[apScale].size(); i++)
     {
         sphereLogicVector[i]->setPosition(apx_pos, apy_pos, apcx_pos, apcy_pos);
         sphereLogicVector[i]->updatePosition(sphereLogicVector);
         sphereLogicVector[i]->limitSphere();
-        
-        if (sphereLogicVector[i]->checkIntersection(inc, sphereLogicVector[i]->getSphereBool()))
-        {
-            //add midi event
-            midiNote = apRootNote + scalesVector[apScale][i];
-            auto message = juce::MidiMessage::noteOn(1, midiNote, 0.5f);
-            auto timeStamp = message.getTimeStamp();
-            midiMessages.addEvent(message, timeStamp);
-            sphereLogicVector[i]->setSphereBool(false);
+
+            if (sphereLogicVector[i]->checkIntersection(inc, sphereLogicVector[i]->getSphereBool()))
+            {
+                //add midi event
+                midiNote = apRootNote + scalesVector[apScale][i];
+                auto message = juce::MidiMessage::noteOn(1, midiNote, 0.5f);
+                auto timeStamp = message.getTimeStamp();
+                midiMessages.addEvent(message, timeStamp);
+                sphereLogicVector[i]->setSphereBool(false);
+            }
         }
     }
     

@@ -17,12 +17,12 @@
 Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    for (auto i = 0; i < 8; i++)
+    for (auto i = 0; i < 15; i++)
     {
         vectorOfSpheres.push_back(std::make_unique<Sphere>());
-        addAndMakeVisible(*vectorOfSpheres.back());
+//        addAndMakeVisible(*vectorOfSpheres.back());
     }
-    
+        
     //xpos slider
     xPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     xPos_Slider.setRange(-1.0f, 1.0f, 0.001f);
@@ -164,8 +164,24 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     g.setOrigin(getWidth() / 2, getHeight() / 2 + 20);
     g.drawLine(0, 0, borderRadius * cos(t), borderRadius * sin(t), 2);
     
-//    for (auto i = 0; i < vectorOfSpheres.size() -1; i++)
+    //scale returns 0, 1, 2, 3
+    
+    if (scale <= 3)
+    {
+    std::cout << scale << "\n";
+    
+        for (auto i = 0; i <editorScalesVector[scale].size() - 1; i++)
+        {
+            g.setColour(juce::Colour::fromFloatRGBA (1.0f, 0.0f, 0.0f, 0.5f));
+            g.fillEllipse((vectorOfSpheres[i]->getXPos() * 160) - 10, (vectorOfSpheres[i]->getYPos() * 160) - 10,
+                          10 * 2, 10 * 2);
+        }
+    }
+
+//
+//    for (auto i = 0; i < editorScalesVector[scale].size() - 1; i++)
 //    {
+//        g.setColour(juce::Colours::black);
 //        g.drawLine(vectorOfSpheres[i]->getXPos() * 160, vectorOfSpheres[i]->getYPos() * 160,
 //                   vectorOfSpheres[i +1]->getXPos() * 160, vectorOfSpheres[i +1]->getYPos() * 160, 1.5);
 //    }
