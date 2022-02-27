@@ -62,3 +62,9 @@ float clampIt(float value, float min, float max)
 {
     return std::min(std::max(value, min), max);
 }
+
+float changeRange(float value, float a, float b, float c, float d)
+{
+    value = (value - a) / (b - a);
+    return c + value * (d - c);
+};

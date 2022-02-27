@@ -40,3 +40,6 @@ float distance(float x0, float y0, float x1, float y1);
 
 //clamp a value to a min and max so the value stays in that constraint.
 float clampIt(float value, float min, float max);
+
+//take a range and extend it to what you want.
+float changeRange(float value, float a, float b, float c, float d);

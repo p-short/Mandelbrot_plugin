@@ -28,8 +28,9 @@ public:
     bool checkIntersection(double &rotatingArm, bool other);
     void setSphereBool(bool myBool);
     bool getSphereBool();
-    float getXPos();
-    float getYPos();
+    double getXPos();
+    double getYPos();
+    float getMag();
     void paint (juce::Graphics&) override;
     void resized() override;
     
@@ -39,6 +40,9 @@ public:
     double spy;
     float magVecA;
     
+    double a;
+    double b;
+   
 private:
     
     float cx;
@@ -57,6 +61,8 @@ private:
     double scalarProjection;
     int sphereRadius { 10 };
     bool isIntersecting = true;
+    float newX { 0 };
+    float newY { 0 };
   
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Sphere)
 };

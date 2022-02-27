@@ -17,6 +17,7 @@ Sphere::Sphere() //(float _x, float _y): x(_x), y(_y)
 {
     x = 0;
     y = 0;
+    a = std::numeric_limits<double>::max(); // 1.79769e+308
 }
 
 Sphere::~Sphere()
@@ -33,7 +34,7 @@ void Sphere::setPosition(float x_, float y_, float cx_, float cy_)
 
 void Sphere::updatePosition(std::vector<std::unique_ptr<Sphere>>& thing)
 {
-    for (int i = 0; i < thing.size() -1 ; i++)
+    for (int i = 0; i < thing.size() - 1; i++)
     {
         thing[i + 1]->x = (pow(thing[i]->x, 2) + -pow(thing[i]->y, 2)) +
         (pow(thing[i]->cx, 2) + -pow(thing[i]->cy, 2));
@@ -49,14 +50,28 @@ void Sphere::limitSphere()
     vecA = createVector(cp, mp); // point 1 to center point
     
     phi = atan2(y, x);
+    
+    if (isnan(phi))
+    {
+        phi = M_PI * 2;
+    }
+    
     magVecA = clampIt(magnitude(vecA), 0 , 1);
+    
+    if (isnan(magVecA))
+    {
+        magVecA = 1.0;
+    }
+    
+    newX = magVecA * cos(phi);
+    newY = magVecA * sin(phi);
 }
 
 bool Sphere::checkIntersection(double &rotatingArm, bool other)
 {
     scaledPos = createCoord(x * 160, y * 160);
 //    Coord midPoint = createCoord(0, 0);
-    rp = createCoord(160 * cos(rotatingArm), 160 * sin(rotatingArm));
+    rp = createCoord(170 * cos(rotatingArm), 170 * sin(rotatingArm));
     
     newVecA = createVector(scaledPos, mp);
 //    Coord vecB = createVector(rotPoint, midPoint);
@@ -98,16 +113,21 @@ bool Sphere::getSphereBool()
     return isIntersecting;
 }
 
-float Sphere::getXPos()
+double Sphere::getXPos()
 {
-    x = magVecA * cos(phi);
-    return x;
+//    x = magVecA * cos(phi);
+    return newX;
 }
 
-float Sphere::getYPos()
+double Sphere::getYPos()
 {
-    y = magVecA * sin(phi);
-    return y;
+//    y = magVecA * sin(phi);
+    return newY;
+}
+
+float Sphere::getMag()
+{
+    return magVecA;
 }
 
 void Sphere::paint (juce::Graphics& g)
