@@ -25,12 +25,14 @@ public:
     void setPosition(float x_, float y_, float cx_, float cy_);
     void updatePosition(std::vector<std::unique_ptr<Sphere>>&);
     void limitSphere();
-    bool checkIntersection(double &rotatingArm, bool other);
+//    bool checkIntersection(double &rotatingArm, bool other);
     void setSphereBool(bool myBool);
     bool getSphereBool();
+    bool checkForPaint(double inc);
     double getXPos();
     double getYPos();
     float getMag();
+    float getDist();
     void paint (juce::Graphics&) override;
     void resized() override;
     
@@ -53,13 +55,16 @@ private:
     Coord rp;
     Coord nVecB;
     Coord scaledPos;
-    Coord newVecA;
+    Coord nVecA;
+    Coord newMP;
+    Coord vecB;
     float phi;
     float dist0;
     float dist1;
     float dist2;
     double scalarProjection;
     int sphereRadius { 10 };
+    int bordRad { 170 };
     bool isIntersecting = true;
     float newX { 0 };
     float newY { 0 };

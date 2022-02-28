@@ -17,7 +17,7 @@ Sphere::Sphere() //(float _x, float _y): x(_x), y(_y)
 {
     x = 0;
     y = 0;
-    a = std::numeric_limits<double>::max(); // 1.79769e+308
+    //a = std::numeric_limits<double>::max(); // 1.79769e+308
 }
 
 Sphere::~Sphere()
@@ -67,41 +67,41 @@ void Sphere::limitSphere()
     newY = magVecA * sin(phi);
 }
 
-bool Sphere::checkIntersection(double &rotatingArm, bool other)
-{
-    scaledPos = createCoord(x * 160, y * 160);
-//    Coord midPoint = createCoord(0, 0);
-    rp = createCoord(170 * cos(rotatingArm), 170 * sin(rotatingArm));
-    
-    newVecA = createVector(scaledPos, mp);
-//    Coord vecB = createVector(rotPoint, midPoint);
-    nVecB = normalise(createVector(rp, mp));
-    
-    scalarProjection = clampIt(dotProduct(newVecA, nVecB), 0, 160);
-    
-    spx = scalarProjection * cos(rotatingArm);
-    spy = scalarProjection * sin(rotatingArm);
-    
-    dist0 = distance(rp.x, rp.y, scaledPos.x, scaledPos.y);
-    dist1 = distance(scaledPos.x, scaledPos.y, spx, spy);
-    dist2 = distance(scaledPos.x, scaledPos.y, mp.x, mp.y);
-
-    if (dist0 < 160 && dist1 < sphereRadius && other && dist2 > sphereRadius)
-    {
-        return true;
-    }
-    
-    else if (dist0 < 160 && dist1 > sphereRadius)
-    {
-        isIntersecting = true;
-        return false;
-    }
-    
-    else
-    {
-        return false;
-    }
-}
+//bool Sphere::checkIntersection(double &rotatingArm, bool other)
+//{
+//    scaledPos = createCoord(x * 160, y * 160);
+////    Coord newMP = createCoord(0, 0 + 20);
+//    rp = createCoord(170 * cos(rotatingArm), 170 * sin(rotatingArm));
+//    
+//    newVecA = createVector(scaledPos, mp);
+////    Coord vecB = createVector(rotPoint, midPoint);
+//    nVecB = normalise(createVector(rp, mp));
+//    
+//    scalarProjection = clampIt(dotProduct(newVecA, nVecB), 0, 160);
+//    
+//    spx = scalarProjection * cos(rotatingArm);
+//    spy = scalarProjection * sin(rotatingArm);
+//    
+//    dist0 = distance(rp.x, rp.y, scaledPos.x, scaledPos.y);
+//    dist1 = distance(scaledPos.x, scaledPos.y, spx, spy);
+//    dist2 = distance(scaledPos.x, scaledPos.y, mp.x, mp.y);
+//
+//    if (dist0 < 160 && dist1 < sphereRadius && other && dist2 > sphereRadius)
+//    {
+//        return true;
+//    }
+//    
+//    else if (dist0 < 160 && dist1 > sphereRadius)
+//    {
+//        isIntersecting = true;
+//        return false;
+//    }
+//    
+//    else
+//    {
+//        return false;
+//    }
+//}
 
 void Sphere::setSphereBool(bool myBool)
 {
@@ -111,6 +111,43 @@ void Sphere::setSphereBool(bool myBool)
 bool Sphere::getSphereBool()
 {
     return isIntersecting;
+}
+
+bool Sphere::checkForPaint(double inc)
+{
+    //scaledpos x and y tend to infinty, create a check.
+    scaledPos = createCoord(newX * (bordRad - 10), newY * (bordRad - 10));
+    rp = createCoord(bordRad * cos(inc), bordRad * sin(inc));
+    nVecA = createVector(scaledPos, mp); // mp = (0, 0)
+    vecB = createVector(rp, mp);
+    nVecB = normalise(vecB);
+    scalarProjection = clampIt(dotProduct(nVecA, nVecB), 0, bordRad - sphereRadius);
+    
+    spx = scalarProjection * cos(inc);
+    spy = scalarProjection * sin(inc);
+    
+    //check is spx || spy are NaN
+//    if (isnan(spx))
+//    {
+//        spx = bordRad;
+//    }
+//
+//    if (isnan(spy))
+//    {
+//        spy = bordRad;
+//    }
+    
+    dist0 = distance(rp.x, rp.y, scaledPos.x, scaledPos.y);
+    
+//    if (isnan(dist0))
+//    {
+//        dist0 = (bordRad * 2) - sphereRadius;
+//    }
+    
+    dist1 = distance(scaledPos.x, scaledPos.y, spx, spy);
+    dist2 = distance(scaledPos.x, scaledPos.y, mp.x, mp.y);
+    
+    return dist0 <= bordRad * 2 && dist1 < sphereRadius && dist2 > sphereRadius;
 }
 
 double Sphere::getXPos()
@@ -128,6 +165,11 @@ double Sphere::getYPos()
 float Sphere::getMag()
 {
     return magVecA;
+}
+
+float Sphere::getDist()
+{
+    return scaledPos.y;
 }
 
 void Sphere::paint (juce::Graphics& g)

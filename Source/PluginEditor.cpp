@@ -25,28 +25,28 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
         
     //xpos slider
     xPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    xPos_Slider.setRange(-1.0f, 1.0f, 0.001f);
+    xPos_Slider.setRange(-0.99f, 0.99f, 0.001f);
     xPos_Slider.setValue(0.0f);
     xPos_Slider.addListener(this);
     addAndMakeVisible(xPos_Slider);
     
     //ypos slider
     yPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    yPos_Slider.setRange(-1.0f, 1.0f, 0.001f);
+    yPos_Slider.setRange(-0.99f, 0.99f, 0.001f);
     yPos_Slider.setValue(0.0f);
     yPos_Slider.addListener(this);
     addAndMakeVisible(yPos_Slider);
     
     //const x offset slider
     constXOffSet.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    constXOffSet.setRange(-1.0f, 1.0f, 0.001f);
+    constXOffSet.setRange(-0.99f, 0.99f, 0.001f);
     constXOffSet.setValue(0.0f);
     constXOffSet.addListener(this);
     addAndMakeVisible(constXOffSet);
     
     //const y offset slider
     constYOffSet.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    constYOffSet.setRange(-1.0f, 1.0f, 0.001f);
+    constYOffSet.setRange(-0.99f, 0.99f, 0.001f);
     constYOffSet.setValue(0.0f);
     constYOffSet.addListener(this);
     addAndMakeVisible(constYOffSet);
@@ -158,11 +158,14 @@ Mandelbrot_pluginAudioProcessorEditor::~Mandelbrot_pluginAudioProcessorEditor()
 void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // drawing big circle with rotating arm
+    g.saveState();
     g.fillAll (juce::Colours::dimgrey);
     g.setColour(juce::Colours::black);
     g.drawEllipse(300 - borderRadius, 220 - borderRadius, borderRadius * 2, borderRadius * 2, 2);
     g.setOrigin(getWidth() / 2, getHeight() / 2 + 20);
     g.drawLine(0, 0, borderRadius * cos(t), borderRadius * sin(t), 2);
+    
+
     
     //scale returns 0, 1, 2, 3
     
@@ -172,11 +175,11 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     if (scale <= 3)
     {
     
-        for (auto i = 0; i < 8; i++)
+        for (auto i = 0; i < editorScalesVector[scale].size(); i++)
         {
-            if (i == 14)
+            if (vectorOfSpheres[i]->checkForPaint(t))
             {
-                 g.setColour(juce::Colour::fromFloatRGBA (0.0f, 1.0f, 0.0f, 0.5f));
+                g.setColour(juce::Colour::fromFloatRGBA (1.0f, 0.0f, 0.0f, 1.0f));
             }
             
             else
@@ -186,26 +189,52 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
             
             g.fillEllipse((vectorOfSpheres[i]->getXPos() * 160) - 10, (vectorOfSpheres[i]->getYPos() * 160) - 10,
                           10 * 2, 10 * 2);
+            
+            //line of scalar projection
+//            g.setColour(juce::Colours::green);
+//            g.drawLine(vectorOfSpheres[i]->getXPos() * 160, vectorOfSpheres[i]->getYPos() * 160,
+//                       vectorOfSpheres[i]->spx, vectorOfSpheres[i]->spy, 3);
+        }
+        
+        for (auto j = 0; j < editorScalesVector[scale].size() - 1; j++)
+        {
+            g.setColour(juce::Colours::black);
+            g.drawLine(vectorOfSpheres[j]->getXPos() * 160, vectorOfSpheres[j]->getYPos() * 160,
+                       vectorOfSpheres[j +1]->getXPos() * 160, vectorOfSpheres[j +1]->getYPos() * 160, 0.5);
         }
     }
-
-
-    for (auto j = 0; j < 14; j++) //editorScalesVector[scale].size() - 1
-    {
-        g.setColour(juce::Colours::black);
-        g.drawLine(vectorOfSpheres[j]->getXPos() * 160, vectorOfSpheres[j]->getYPos() * 160,
-                   vectorOfSpheres[j +1]->getXPos() * 160, vectorOfSpheres[j +1]->getYPos() * 160, 1.5);
-    }
     
-//    g.setColour(juce::Colours::green);
-//
-//    for (auto i = 0; i < vectorOfSpheres.size(); i++)
-//    {
-//        g.drawLine(vectorOfSpheres[i]->getXPos() * 160, vectorOfSpheres[i]->getYPos() * 160,
-//                   vectorOfSpheres[i]->spx, vectorOfSpheres[i]->spy, 3);
-//
-//    }
+//    std::cout << vectorOfSpheres[13]->getDist() << "\n";
     
+    g.restoreState();
+    
+    //x label
+    g.saveState();
+    g.setColour(juce::Colours::black);
+    g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi, 4, 216));
+    g.drawText("x axis", 4, 216, 100, 50, juce::Justification::topLeft);
+    g.restoreState();
+    
+    //y label
+    g.saveState();
+    g.setColour(juce::Colours::black);
+    g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi, 109, 216));
+    g.drawText("y axis", 109, 216, 100, 50, juce::Justification::topLeft);
+    g.restoreState();
+    
+    //x offset label
+    g.saveState();
+    g.setColour(juce::Colours::black);
+    g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi, 473, 222));
+    g.drawText("x offset", 473, 222, 100, 50, juce::Justification::topLeft);
+    g.restoreState();
+    
+    //y offset label
+    g.saveState();
+    g.setColour(juce::Colours::black);
+    g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi, 579, 222));
+    g.drawText("y offset", 579, 222, 100, 50, juce::Justification::topLeft);
+    g.restoreState();
 }
 
 
@@ -337,16 +366,16 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
 //        midiNote = rootNote + scalesVector[scale][i];
         vectorOfSpheres[i]->setPosition(xPos, yPos, cxPos, cyPos);
         vectorOfSpheres[i]->updatePosition(vectorOfSpheres);
-       
+        vectorOfSpheres[i]->limitSphere();
         
-        if (vectorOfSpheres[i]->checkIntersection(t, vectorOfSpheres[i]->getSphereBool()))
-        {
-            
-//                std::cout << "shpere " << i + 1 << " boom" << std::endl;
-                //std::cout << midiNote << std::endl;
-                vectorOfSpheres[i]->setSphereBool(false);
-        }
-         vectorOfSpheres[i]->limitSphere();
+//        if (vectorOfSpheres[i]->checkIntersection(t, vectorOfSpheres[i]->getSphereBool()))
+//        {
+//            
+////                std::cout << "shpere " << i + 1 << " boom" << std::endl;
+//                //std::cout << midiNote << std::endl;
+//                vectorOfSpheres[i]->setSphereBool(false);
+//        }
+        
     }
     
     //update speed acording to speed buttons
@@ -358,7 +387,7 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     audioProcessor.apcx_pos = cxPos;
     audioProcessor.apcy_pos = cyPos;
     
-    std::cout << "val of x : " << vectorOfSpheres[14]->getXPos() << "\n";
+//    std::cout << "val of x : " << vectorOfSpheres[14]->getXPos() << "\n";
 }
 
 // listen for slider value changes, pass them to variables in Sphere instance
