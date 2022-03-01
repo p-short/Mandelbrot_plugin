@@ -170,9 +170,15 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
             {
                 //add midi event
                 midiNote = apRootNote + scalesVector[apScale][i];
-                auto message = juce::MidiMessage::noteOn(1, midiNote, 0.5f);
-                auto timeStamp = message.getTimeStamp();
-                midiMessages.addEvent(message, timeStamp);
+                float velocity = (apIsVel) ? sphereLogicVector[i]->getMag() : 1.0f;
+                auto onMessage = juce::MidiMessage::noteOn(1, midiNote, velocity);
+                auto offMessage = juce::MidiMessage::noteOff(1, midiNote, velocity);
+                auto onTimeStamp = onMessage.getTimeStamp();
+                
+                midiMessages.addEvent(onMessage, onTimeStamp);
+                
+                auto offTimeStamp = offMessage.getTimeStamp();
+                midiMessages.addEvent(offMessage, offTimeStamp);
                 sphereLogicVector[i]->setSphereBool(false);
             }
         }

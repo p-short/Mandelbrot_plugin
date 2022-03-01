@@ -70,6 +70,7 @@ public:
     int apScale;
     int apRootNote;
     int midiNote;
+    bool apIsVel { false };
     
     /*
      nested vector containing scales for later

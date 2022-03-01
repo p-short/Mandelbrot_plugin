@@ -26,6 +26,7 @@ public:
     bool getSphereBool();
     float getXPos();
     float getYPos();
+    float getMag();
     
 private:
     
@@ -33,21 +34,24 @@ private:
     float y;
     float cx;
     float cy;
-    Coord centPoint;
-    Coord spherePoint;
-    Coord vecA;
-    Coord rotationPoint;
-    Coord normVecB;
-    Coord scaledPos;
-    Coord newVecA;
-    float phi;
-    float magVecA;
-    float spx;
-    float spy;
-    float dist0;
-    float dist1;
-    float dist2;
-    double scalarProjection;
-    int sphereRadius { 10 };
-    bool isIntersecting = true;
+    Coord ap_mp; //mid point
+    Coord ap_cp; // spherepoint
+    Coord ap_vecA;
+    Coord ap_rp; //rotation point
+    Coord ap_nVecB;
+    Coord ap_scaledPos;
+    Coord ap_newVecA;
+    float ap_phi;
+    float ap_magVecA;
+    float ap_newX { 0 };
+    float ap_newY { 0 };
+    float ap_spx;
+    float ap_spy;
+    float ap_dist0;
+    float ap_dist1;
+    float ap_dist2;
+    double ap_scalarProjection;
+    const int ap_sphereRadius { 10 };
+    const int ap_bordRad = 170;
+    bool ap_isIntersecting = true;
 };

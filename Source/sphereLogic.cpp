@@ -44,46 +44,60 @@ void SphereLogic::updatePosition(std::vector<std::unique_ptr<SphereLogic> > &myV
 void SphereLogic::limitSphere()
 {
     //this code limits the sphere from leaving the boundry
-    spherePoint = createCoord(x, y);
-    centPoint = createCoord(0, 0);
-    vecA = createVector(spherePoint, centPoint); // point 1 to center point
+    ap_cp = createCoord(x, y);
+    ap_mp = createCoord(0, 0);
+    ap_vecA = createVector(ap_cp, ap_mp); // point 1 to center point
     
-    phi = atan2(y, x);
-    magVecA = clampIt(magnitude(vecA), 0 , 1);
+    ap_phi = atan2(y, x);
+    
+    if (isnan(ap_phi))
+    {
+        ap_phi = M_PI * 2;
+    }
+    
+    ap_magVecA = clampIt(magnitude(ap_vecA), 0 , 1);
+    
+    if (isnan(ap_magVecA))
+    {
+        ap_magVecA = 1.0;
+    }
+    
+    ap_newX = ap_magVecA * cos(ap_phi);
+    ap_newY = ap_magVecA * sin(ap_phi);
 }
 
 bool SphereLogic::checkIntersection(double &rotatingArm, bool other)
 {
-    scaledPos = createCoord(x * 160, y * 160);
-    //    Coord midPoint = createCoord(0, 0);
-    rotationPoint = createCoord(160 * cos(rotatingArm), 160 * sin(rotatingArm));
+    ap_scaledPos = createCoord(ap_newX * (ap_bordRad - ap_sphereRadius),
+                               ap_newY * (ap_bordRad - ap_sphereRadius));
     
-    newVecA = createVector(scaledPos, centPoint);
-    //    Coord vecB = createVector(rotPoint, midPoint);
-    normVecB = normalise(createVector(rotationPoint, centPoint));
+    ap_rp = createCoord(ap_bordRad * cos(rotatingArm), ap_bordRad * sin(rotatingArm));
     
-    scalarProjection = clampIt(dotProduct(newVecA, normVecB), 0, 160);
+    ap_newVecA = createVector(ap_scaledPos, ap_mp);
+    ap_nVecB = normalise(createVector(ap_rp, ap_mp));
     
-    spx = scalarProjection * cos(rotatingArm);
-    spy = scalarProjection * sin(rotatingArm);
+    ap_scalarProjection = clampIt(dotProduct(ap_newVecA, ap_nVecB), 0, ap_bordRad - ap_sphereRadius);
     
-    dist0 = distance(rotationPoint.x, rotationPoint.y, scaledPos.x, scaledPos.y);
-    dist1 = distance(scaledPos.x, scaledPos.y, spx, spy);
-    dist2 = distance(scaledPos.x, scaledPos.y, centPoint.x, centPoint.y);
+    ap_spx = ap_scalarProjection * cos(rotatingArm);
+    ap_spy = ap_scalarProjection * sin(rotatingArm);
+    
+    ap_dist0 = distance(ap_rp.x, ap_rp.y, ap_scaledPos.x, ap_scaledPos.y);
+    ap_dist1 = distance(ap_scaledPos.x, ap_scaledPos.y, ap_spx, ap_spy);
+    ap_dist2 = distance(ap_scaledPos.x, ap_scaledPos.y, ap_mp.x, ap_mp.y);
     
 //    if (this.dist0 < borderRad && this.dist1 < this.r && other &&
 //        this.dist2 > this.r) {
 //        return true;
 //    } else if (this.dist0 < borderRad && this.dist1 > this.r) {
     
-    if (dist0 < 170 && dist1 < sphereRadius && other && dist2 > sphereRadius)
+    if (ap_dist0 < ap_bordRad && ap_dist1 < ap_sphereRadius && other && ap_dist2 > ap_sphereRadius)
     {
         return true;
     }
     
-    else if (dist0 < 170 && dist1 > sphereRadius)
+    else if (ap_dist0 < ap_bordRad && ap_dist1 > ap_sphereRadius)
     {
-        isIntersecting = true;
+        ap_isIntersecting = true;
         return false;
     }
     
@@ -95,22 +109,25 @@ bool SphereLogic::checkIntersection(double &rotatingArm, bool other)
 
 void SphereLogic::setSphereBool(bool myBool)
 {
-    isIntersecting = myBool;
+    ap_isIntersecting = myBool;
 }
 
 bool SphereLogic::getSphereBool()
 {
-    return isIntersecting;
+    return ap_isIntersecting;
 }
 
 float SphereLogic::getXPos()
 {
-    x = magVecA * cos(phi);
-    return x;
+    return ap_newX;
 }
 
 float SphereLogic::getYPos()
 {
-    y = magVecA * sin(phi);
-    return y;
+    return ap_newY;
+}
+
+float SphereLogic::getMag()
+{
+    return ap_magVecA;
 }

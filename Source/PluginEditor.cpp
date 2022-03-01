@@ -17,7 +17,17 @@
 Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    for (auto i = 0; i < 15; i++)
+    auto editorMaxVectorSize = editorScalesVector[0].size();
+    
+    for (int i = 0; i < editorScalesVector.size(); i++)
+    {
+        if (editorScalesVector[i].size() > editorMaxVectorSize)
+        {
+            editorMaxVectorSize = editorScalesVector[i].size();
+        }
+    }
+    
+    for (auto i = 0; i < editorMaxVectorSize; i++)
     {
         vectorOfSpheres.push_back(std::make_unique<Sphere>());
 //        addAndMakeVisible(*vectorOfSpheres.back());
@@ -25,28 +35,28 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
         
     //xpos slider
     xPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    xPos_Slider.setRange(-0.99f, 0.99f, 0.001f);
+    xPos_Slider.setRange(-1.0f, 1.0f, 0.001f);
     xPos_Slider.setValue(0.0f);
     xPos_Slider.addListener(this);
     addAndMakeVisible(xPos_Slider);
     
     //ypos slider
     yPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    yPos_Slider.setRange(-0.99f, 0.99f, 0.001f);
+    yPos_Slider.setRange(-1.0f, 1.0f, 0.001f);
     yPos_Slider.setValue(0.0f);
     yPos_Slider.addListener(this);
     addAndMakeVisible(yPos_Slider);
     
     //const x offset slider
     constXOffSet.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    constXOffSet.setRange(-0.99f, 0.99f, 0.001f);
+    constXOffSet.setRange(-1.0f, 1.0f, 0.001f);
     constXOffSet.setValue(0.0f);
     constXOffSet.addListener(this);
     addAndMakeVisible(constXOffSet);
     
     //const y offset slider
     constYOffSet.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    constYOffSet.setRange(-0.99f, 0.99f, 0.001f);
+    constYOffSet.setRange(-1.0f, 1.0f, 0.001f);
     constYOffSet.setValue(0.0f);
     constYOffSet.addListener(this);
     addAndMakeVisible(constYOffSet);
@@ -128,6 +138,12 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     halfSpeedBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
     addAndMakeVisible(halfSpeedBtn);
     halfSpeedBtn.addListener(this);
+    
+    //velocity button
+    velBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
+    velBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
+    addAndMakeVisible(velBtn);
+    velBtn.addListener(this);
     
     //custom buttons
     addAndMakeVisible(myBtn_one);
@@ -518,6 +534,29 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
             halfSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
         }
     }
+    
+    if (button == &velBtn)
+    {
+        velBtnCount++;
+        velBtnCount = velBtnCount % 2;
+        
+        if (velBtnCount == 1)
+        {
+            audioProcessor.apIsVel = true;
+//            std::cout << "is true" << "\n";
+            velBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
+            velBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
+        }
+        
+        else if (velBtnCount == 0)
+        {
+            audioProcessor.apIsVel = false;
+//            std::cout << "is false" << "\n";
+            velBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
+            velBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgrey);
+        }
+        
+    }
 }
 
 void Mandelbrot_pluginAudioProcessorEditor::updateComboBoxes()
@@ -550,6 +589,10 @@ void Mandelbrot_pluginAudioProcessorEditor::resized()
     
     //half speed button
     halfSpeedBtn.setBounds(510, 30, 50, 20);
+    
+    //velocity button
+    
+    velBtn.setBounds(510, 60, 50, 20);
     
     float space = 130 / 5;
     myBtn_one.setBounds(2 + (space * 1) - 25, 300, 65, 95);

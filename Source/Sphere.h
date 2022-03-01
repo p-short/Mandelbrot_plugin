@@ -19,36 +19,27 @@
 class Sphere  : public juce::Component
 {
 public:
-    Sphere(); //float _x, float _y
+    Sphere(); 
     ~Sphere() override;
     
     void setPosition(float x_, float y_, float cx_, float cy_);
     void updatePosition(std::vector<std::unique_ptr<Sphere>>&);
     void limitSphere();
 //    bool checkIntersection(double &rotatingArm, bool other);
-    void setSphereBool(bool myBool);
-    bool getSphereBool();
     bool checkForPaint(double inc);
     double getXPos();
     double getYPos();
-    float getMag();
-    float getDist();
     void paint (juce::Graphics&) override;
     void resized() override;
     
-    float x;
-    float y;
-    double spx;
-    double spy;
-    float magVecA;
-    
-    double a;
-    double b;
-   
 private:
     
+    float x;
+    float y;
     float cx;
     float cy;
+    double spx;
+    double spy;
     Coord cp;
     Coord mp;
     Coord vecA;
@@ -58,6 +49,7 @@ private:
     Coord nVecA;
     Coord newMP;
     Coord vecB;
+    float magVecA;
     float phi;
     float dist0;
     float dist1;
@@ -65,10 +57,8 @@ private:
     double scalarProjection;
     int sphereRadius { 10 };
     int bordRad { 170 };
-    bool isIntersecting = true;
     float newX { 0 };
     float newY { 0 };
-  
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Sphere)
 };
 

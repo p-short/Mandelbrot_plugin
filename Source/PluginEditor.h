@@ -107,11 +107,13 @@ private:
     OnState doubleSpeedBtnOnState { OnState::off };
     OnState normalSpeedBtnOnState { OnState::on };
     OnState halfSpeedBtnOnState { OnState::off };
+    int velBtnCount { 0 };
     
     juce::TextButton synchBtn { "Synch" };
     juce::TextButton doubleSpeedBtn { "* 2" };
     juce::TextButton normalSpeedBtn { "* 1" };
     juce::TextButton halfSpeedBtn { "/ 2" };
+    juce::TextButton velBtn { "Velocity" };
     
     juce::ImageComponent btnImageComp;
     juce::TextButton xModBtn;
@@ -127,6 +129,9 @@ private:
     void btnTwoIsClicked();
     void btnThreeIsClicked();
     void btnFourIsClicked();
+    
+    juce::Image playBtnImage;
+    juce::Image stopBtnImage;
 
     std::vector<std::unique_ptr<Sphere>> vectorOfSpheres;
 //    juce::MidiBuffer midBuf;

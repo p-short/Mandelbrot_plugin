@@ -17,7 +17,8 @@ Sphere::Sphere() //(float _x, float _y): x(_x), y(_y)
 {
     x = 0;
     y = 0;
-    //a = std::numeric_limits<double>::max(); // 1.79769e+308
+    cx = 0;
+    cy = 0;
 }
 
 Sphere::~Sphere()
@@ -103,20 +104,9 @@ void Sphere::limitSphere()
 //    }
 //}
 
-void Sphere::setSphereBool(bool myBool)
-{
-    isIntersecting = myBool;
-}
-
-bool Sphere::getSphereBool()
-{
-    return isIntersecting;
-}
-
 bool Sphere::checkForPaint(double inc)
 {
-    //scaledpos x and y tend to infinty, create a check.
-    scaledPos = createCoord(newX * (bordRad - 10), newY * (bordRad - 10));
+    scaledPos = createCoord(newX * (bordRad - sphereRadius), newY * (bordRad - sphereRadius));
     rp = createCoord(bordRad * cos(inc), bordRad * sin(inc));
     nVecA = createVector(scaledPos, mp); // mp = (0, 0)
     vecB = createVector(rp, mp);
@@ -126,66 +116,28 @@ bool Sphere::checkForPaint(double inc)
     spx = scalarProjection * cos(inc);
     spy = scalarProjection * sin(inc);
     
-    //check is spx || spy are NaN
-//    if (isnan(spx))
-//    {
-//        spx = bordRad;
-//    }
-//
-//    if (isnan(spy))
-//    {
-//        spy = bordRad;
-//    }
-    
     dist0 = distance(rp.x, rp.y, scaledPos.x, scaledPos.y);
-    
-//    if (isnan(dist0))
-//    {
-//        dist0 = (bordRad * 2) - sphereRadius;
-//    }
-    
     dist1 = distance(scaledPos.x, scaledPos.y, spx, spy);
     dist2 = distance(scaledPos.x, scaledPos.y, mp.x, mp.y);
     
-    return dist0 <= bordRad * 2 && dist1 < sphereRadius && dist2 > sphereRadius;
+    return dist0 <= bordRad && dist1 < sphereRadius && dist2 > sphereRadius;
 }
 
 double Sphere::getXPos()
 {
-//    x = magVecA * cos(phi);
     return newX;
 }
 
 double Sphere::getYPos()
 {
-//    y = magVecA * sin(phi);
     return newY;
-}
-
-float Sphere::getMag()
-{
-    return magVecA;
-}
-
-float Sphere::getDist()
-{
-    return scaledPos.y;
 }
 
 void Sphere::paint (juce::Graphics& g)
 {
-//    x = magVecA * cos(phi);
-//    y = magVecA * sin(phi);
-//    g.setOrigin(getWidth() / 2 - 10, getHeight() / 2 - 10 + 20);
-//    g.setColour(juce::Colour::fromFloatRGBA (1.0f, 0.0f, 0.0f, 0.5f));
-//    g.fillEllipse(x * 160, y * 160, sphereRadius * 2, sphereRadius * 2);
-
 }
-
 
 void Sphere::resized()
 {
-    // This method is where you should set the bounds of any child
-    // components that your component contains..
 }
 
