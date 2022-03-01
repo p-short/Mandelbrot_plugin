@@ -37,6 +37,9 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     xPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     xPos_Slider.setRange(-1.0f, 1.0f, 0.001f);
     xPos_Slider.setValue(0.0f);
+    xPos_Slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
+    xPos_Slider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+    xPos_Slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     xPos_Slider.addListener(this);
     addAndMakeVisible(xPos_Slider);
     
@@ -44,6 +47,9 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     yPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     yPos_Slider.setRange(-1.0f, 1.0f, 0.001f);
     yPos_Slider.setValue(0.0f);
+    yPos_Slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
+    yPos_Slider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+    yPos_Slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     yPos_Slider.addListener(this);
     addAndMakeVisible(yPos_Slider);
     
@@ -51,6 +57,9 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     constXOffSet.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     constXOffSet.setRange(-1.0f, 1.0f, 0.001f);
     constXOffSet.setValue(0.0f);
+    constXOffSet.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
+    constXOffSet.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+    constXOffSet.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     constXOffSet.addListener(this);
     addAndMakeVisible(constXOffSet);
     
@@ -58,6 +67,9 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     constYOffSet.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     constYOffSet.setRange(-1.0f, 1.0f, 0.001f);
     constYOffSet.setValue(0.0f);
+    constYOffSet.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
+    constYOffSet.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+    constYOffSet.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     constYOffSet.addListener(this);
     addAndMakeVisible(constYOffSet);
     
@@ -66,6 +78,10 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     BPM_Slider.setTextValueSuffix(" BPM");
     BPM_Slider.setRange(0, 300, 1);
     BPM_Slider.setValue(120);
+    BPM_Slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
+    BPM_Slider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+    BPM_Slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
+    BPM_Slider.setTextBoxIsEditable(false);
     BPM_Slider.addListener(this);
     addAndMakeVisible(BPM_Slider);
     
@@ -83,6 +99,7 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     noteSelection.addItem("A#", 11);
     noteSelection.addItem("B", 12);
     noteSelection.setJustificationType(juce::Justification::centred);
+    noteSelection.setColour(juce::ComboBox::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
     noteSelection.addListener(this);
     noteSelection.setSelectedId(1);
     addAndMakeVisible(noteSelection);
@@ -100,6 +117,7 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     octaveSelection.addItem("9", 10);
     octaveSelection.addItem("10", 11);
     octaveSelection.setJustificationType(juce::Justification::centred);
+    octaveSelection.setColour(juce::ComboBox::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
     octaveSelection.addListener(this);
     octaveSelection.setSelectedId(5);
     addAndMakeVisible(octaveSelection);
@@ -111,6 +129,7 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     scaleSelection.addItem("Minor 1 Oct", 3);
     scaleSelection.addItem("Minor 2 Oct", 4);
     scaleSelection.setJustificationType(juce::Justification::centred);
+    scaleSelection.setColour(juce::ComboBox::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
     scaleSelection.addListener(this);
     scaleSelection.setSelectedId(1);
     addAndMakeVisible(scaleSelection);
@@ -129,7 +148,7 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     
     //normal speed button
     normalSpeedBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
-    normalSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
+    normalSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colour(36, 44, 68));
     addAndMakeVisible(normalSpeedBtn);
     normalSpeedBtn.addListener(this);
     
@@ -144,6 +163,20 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     velBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
     addAndMakeVisible(velBtn);
     velBtn.addListener(this);
+    
+    //play / stop button images
+    playBtnImage = juce::ImageCache::getFromMemory(BinaryData::play_png, BinaryData::play_pngSize);
+    stopBtnImage = juce::ImageCache::getFromMemory(BinaryData::stop_png, BinaryData::stop_pngSize);
+    
+    playStopBtnImageComp.setImage(playBtnImage);
+    addAndMakeVisible(playStopBtnImageComp);
+    
+    //play / stop button
+    playStopBtn.setColour(juce::TextButton::ColourIds::buttonColourId,
+                  juce::Colour::fromFloatRGBA (1.0f, 1.0f, 1.0f, 0.0f));
+    addAndMakeVisible(playStopBtn);
+    playStopBtn.addListener(this);
+
     
     //custom buttons
     addAndMakeVisible(myBtn_one);
@@ -179,7 +212,7 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     g.setColour(juce::Colours::black);
     g.drawEllipse(300 - borderRadius, 220 - borderRadius, borderRadius * 2, borderRadius * 2, 2);
     g.setOrigin(getWidth() / 2, getHeight() / 2 + 20);
-    g.drawLine(0, 0, borderRadius * cos(t), borderRadius * sin(t), 2);
+    g.drawLine(0, 0, borderRadius * cos(t), borderRadius * sin(t), 1);
     
 
     
@@ -193,14 +226,14 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     
         for (auto i = 0; i < editorScalesVector[scale].size(); i++)
         {
-            if (vectorOfSpheres[i]->checkForPaint(t))
+            if (vectorOfSpheres[i]->checkForPaint(t) && isPlaying)
             {
-                g.setColour(juce::Colour::fromFloatRGBA (1.0f, 0.0f, 0.0f, 1.0f));
+                g.setColour(juce::Colour::fromFloatRGBA (0.996f, 0.509f, 0.549f, 1.0f));
             }
             
             else
             {
-                g.setColour(juce::Colour::fromFloatRGBA (1.0f, 0.0f, 0.0f, 0.5f));
+                g.setColour(juce::Colour::fromFloatRGBA (0.996f, 0.509f, 0.549f, 0.5f));
             }
             
             g.fillEllipse((vectorOfSpheres[i]->getXPos() * 160) - 10, (vectorOfSpheres[i]->getYPos() * 160) - 10,
@@ -395,7 +428,16 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     }
     
     //update speed acording to speed buttons
-    t += M_PI * 2 / (60 / (BPM_Slider.getValue() / 4) / divBy * 60);
+    if (isPlaying)
+    {
+        t += M_PI * 2 / (60 / (BPM_Slider.getValue() / 4) / divBy * 60);
+    }
+    
+    else
+    {
+        t = -M_PI / 2;
+    }
+    
     audioProcessor.inc = t;
     
     audioProcessor.apx_pos = xPos;
@@ -464,7 +506,7 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
         {
             synchBtnOnState = OnState::on;
             synchBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
-            synchBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
+            synchBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colour(36, 44, 68));
         }
         
         else if (synchBtnOnState == OnState::on)
@@ -491,7 +533,7 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
         {
             doubleSpeedBtnOnState = OnState::on;
             doubleSpeedBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
-            doubleSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
+            doubleSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colour(36, 44, 68));
         }
     }
     
@@ -511,7 +553,7 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
         {
             normalSpeedBtnOnState = OnState::on;
             normalSpeedBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
-            normalSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
+            normalSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colour(36, 44, 68));
         }
     }
     
@@ -531,7 +573,7 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
         {
             halfSpeedBtnOnState = OnState::on;
             halfSpeedBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
-            halfSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
+            halfSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colour(36, 44, 68));
         }
     }
     
@@ -543,19 +585,36 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
         if (velBtnCount == 1)
         {
             audioProcessor.apIsVel = true;
-//            std::cout << "is true" << "\n";
             velBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
-            velBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgreen);
+            velBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colour(36, 44, 68));
         }
         
         else if (velBtnCount == 0)
         {
             audioProcessor.apIsVel = false;
-//            std::cout << "is false" << "\n";
             velBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
             velBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgrey);
         }
+    }
+    
+    if (button == &playStopBtn)
+    {
+        playStopBtnCount++;
+        playStopBtnCount = playStopBtnCount % 2;
         
+        switch (playStopBtnCount)
+        {
+        case 1:
+            isPlaying = true;
+            playStopBtnImageComp.setImage(stopBtnImage);
+            break;
+        
+        case 0:
+            isPlaying = false;
+            playStopBtnImageComp.setImage(playBtnImage);
+            break;
+        }
+        audioProcessor.apIsPlaying = isPlaying;
     }
 }
 
@@ -592,7 +651,11 @@ void Mandelbrot_pluginAudioProcessorEditor::resized()
     
     //velocity button
     
-    velBtn.setBounds(510, 60, 50, 20);
+    velBtn.setBounds(510, 68, 50, 20);
+    
+    //play / stop button
+    playStopBtn.setBounds(460, 60, 35, 35);
+    playStopBtnImageComp.setBounds(460, 60, 35, 35);
     
     float space = 130 / 5;
     myBtn_one.setBounds(2 + (space * 1) - 25, 300, 65, 95);

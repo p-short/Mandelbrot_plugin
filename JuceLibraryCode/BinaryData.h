@@ -9,19 +9,25 @@
 namespace BinaryData
 {
     extern const char*   Cosine_Wave_png;
-    const int            Cosine_Wave_pngSize = 5695;
+    const int            Cosine_Wave_pngSize = 5628;
+
+    extern const char*   play_png;
+    const int            play_pngSize = 4111;
 
     extern const char*   Sine_Wave_png;
-    const int            Sine_Wave_pngSize = 5839;
+    const int            Sine_Wave_pngSize = 5895;
 
     extern const char*   Slider_png;
-    const int            Slider_pngSize = 3311;
+    const int            Slider_pngSize = 4296;
+
+    extern const char*   stop_png;
+    const int            stop_pngSize = 2542;
 
     extern const char*   White_noise_png;
-    const int            White_noise_pngSize = 15342;
+    const int            White_noise_pngSize = 13634;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
-    const int namedResourceListSize = 4;
+    const int namedResourceListSize = 6;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];

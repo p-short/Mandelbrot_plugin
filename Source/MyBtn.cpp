@@ -36,6 +36,9 @@ MyBtn::MyBtn()
     speedSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     speedSlider.setRange(0.0, 0.2, 0.001);
     speedSlider.setValue(0.0);
+    speedSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
+    speedSlider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+    speedSlider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     addAndMakeVisible(speedSlider);
     speedSlider.addListener(this);
     
@@ -44,6 +47,9 @@ MyBtn::MyBtn()
     ampSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     ampSlider.setRange(0.0, 1.0, 0.001);
     ampSlider.setValue(0.0);
+    ampSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
+    ampSlider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+    ampSlider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     addAndMakeVisible(ampSlider);
     ampSlider.addListener(this);
 }

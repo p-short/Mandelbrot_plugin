@@ -166,7 +166,7 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
         sphereLogicVector[i]->updatePosition(sphereLogicVector);
         sphereLogicVector[i]->limitSphere();
 
-            if (sphereLogicVector[i]->checkIntersection(inc, sphereLogicVector[i]->getSphereBool()))
+            if (sphereLogicVector[i]->checkIntersection(inc, sphereLogicVector[i]->getSphereBool()) && apIsPlaying)
             {
                 //add midi event
                 midiNote = apRootNote + scalesVector[apScale][i];
@@ -191,7 +191,7 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     while (it.getNextEvent(currentMessage, samplePos))
     {
         
-//        std::cout << currentMessage.getDescription() << "\n";
+        std::cout << currentMessage.getDescription() << "\n";
         
 //        if (currentMessage.isNoteOnOrOff ())
 //        {

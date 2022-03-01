@@ -71,6 +71,7 @@ public:
     int apRootNote;
     int midiNote;
     bool apIsVel { false };
+    bool apIsPlaying { false };
     
     /*
      nested vector containing scales for later

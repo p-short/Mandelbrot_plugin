@@ -31,7 +31,7 @@ public:
     Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor&);
     ~Mandelbrot_pluginAudioProcessorEditor() override;
     int borderRadius = 170;
-    double t { 0.0 };
+    double t { -M_PI / 2 };
 //    double speed { 0.0 };
     float divBy { 1.0 };
 //    float fullRotation;
@@ -132,6 +132,10 @@ private:
     
     juce::Image playBtnImage;
     juce::Image stopBtnImage;
+    juce::ImageComponent playStopBtnImageComp;
+    juce::TextButton playStopBtn;
+    int playStopBtnCount { 0 };
+    bool isPlaying { false };
 
     std::vector<std::unique_ptr<Sphere>> vectorOfSpheres;
 //    juce::MidiBuffer midBuf;
