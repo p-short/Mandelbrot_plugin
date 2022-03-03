@@ -63,18 +63,22 @@ public:
     std::string yMode;
     std::string cxMode;
     std::string cyMode;
-//    
-//    /*
-//     nested vector containing scales for later
-//     scalesArray[0] = major scale 1 oct,
-//     scalesArray[1] = major scale 2 oct,
-//     scalesArray[2] = minor scale 1 oct,
-//     scalesArray[3] = minor scale 2 oct
-//     */
+    
+    /*
+     nested vector containing scales for later
+     [0] = major scale 1 oct,
+     [1] = major scale 2 oct,
+     [2] = minor scale 1 oct,
+     [3] = minor scale 2 oct,
+     [4] = major 7 arp 3 oct,
+     [5] = minor 7 arp 3 oct
+     */
     const std::vector<std::vector<int> > editorScalesVector{{0, 2, 4, 5, 7, 9, 11, 12},
                                                     {0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24},
                                                     {0, 2, 3, 5, 7, 8, 10, 12},
-                                                    {0, 2, 3, 5, 7, 8, 10, 12, 14, 15, 17, 19, 20, 22, 24}};
+                                                    {0, 2, 3, 5, 7, 8, 10, 12, 14, 15, 17, 19, 20, 22, 24},
+                                                    {0, 4, 7, 11, 12, 16, 19, 23, 24, 28, 31, 35},
+                                                    {0, 3, 7, 10, 12, 15, 19, 22, 24, 27, 31, 34}};
     
     
     //==============================================================================
@@ -97,6 +101,7 @@ private:
     juce::ComboBox noteSelection;
     juce::ComboBox octaveSelection;
     juce::ComboBox scaleSelection;
+    juce::ComboBox midiChan;
     
     enum class OnState {
         on,

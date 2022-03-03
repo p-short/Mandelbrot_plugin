@@ -128,11 +128,25 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     scaleSelection.addItem("Major 2 Oct", 2);
     scaleSelection.addItem("Minor 1 Oct", 3);
     scaleSelection.addItem("Minor 2 Oct", 4);
+    scaleSelection.addItem("Major 7 arp 3 Oct", 5);
+    scaleSelection.addItem("Minor 7 arp 3 Oct", 6);
     scaleSelection.setJustificationType(juce::Justification::centred);
     scaleSelection.setColour(juce::ComboBox::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
     scaleSelection.addListener(this);
     scaleSelection.setSelectedId(1);
     addAndMakeVisible(scaleSelection);
+    
+    // midi channle selection
+    juce::StringArray midiChanList("Midi Channel 1", "Midi Channel 2", "Midi Channel 3", "Midi Channel 4",
+                                   "Midi Channel 5", "Midi Channel 6", "Midi Channel 7", "Midi Channel 8",
+                                   "Midi Channel 9", "Midi Channel 10", "Midi Channel 11", "Midi Channel 12",
+                                   "Midi Channel 13", "Midi Channel 14", "Midi Channel 15", "Midi Channel 16");
+    midiChan.addItemList(midiChanList, 1);
+    midiChan.setJustificationType(juce::Justification::centred);
+    midiChan.setColour(juce::ComboBox::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+    midiChan.addListener(this);
+    midiChan.setSelectedId(1);
+    addAndMakeVisible(midiChan);
     
     //synch button
     synchBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
@@ -221,7 +235,7 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
 //    std::cout << "x : " << vectorOfSpheres[14]->getXPos() << "\n" <<
 //    "y : " <<vectorOfSpheres[14]->getYPos() << "\n";
     
-    if (scale <= 3)
+    if (scale <= editorScalesVector.size() - 1)
     {
     
         for (auto i = 0; i < editorScalesVector[scale].size(); i++)
@@ -330,6 +344,11 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
         yPos = cos(yFreq) * myBtn_two.getAmpSliderVal();
     }
     
+    else if (yMode == "noise")
+    {
+        yPos = myPerlinNoise(yFreq) * myBtn_two.getAmpSliderVal();
+    }
+    
     //cxMode code
     if (cxMode == "slider")
     {
@@ -346,6 +365,11 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
         cxPos = cos(cxFreq) * myBtn_three.getAmpSliderVal();
     }
     
+    else if (cxMode == "noise")
+    {
+        cxPos = myPerlinNoise(cxFreq) * myBtn_three.getAmpSliderVal();
+    }
+    
     //cyMode code
     if (cyMode == "slider")
     {
@@ -360,6 +384,11 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     else if (cyMode == "cos")
     {
         cyPos = cos(cyFreq) * myBtn_four.getAmpSliderVal();
+    }
+    
+    else if (cyMode == "noise")
+    {
+        cyPos = myPerlinNoise(cyFreq) * myBtn_four.getAmpSliderVal();
     }
     
     //xFreq logic
@@ -430,7 +459,8 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     //update speed acording to speed buttons
     if (isPlaying)
     {
-        t += M_PI * 2 / (60 / (BPM_Slider.getValue() / 4) / divBy * 60);
+        t += (M_PI * 2) / (60 / (BPM_Slider.getValue() / 4) / divBy * 60);
+        //TWO_PI / (60 / (BPMslider.value() / 4) / divBy * 60)
     }
     
     else
@@ -493,6 +523,11 @@ void Mandelbrot_pluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox* box)
         scale = scaleSelection.getSelectedId() - 1;
         audioProcessor.apScale = scaleSelection.getSelectedId() - 1;
         updateComboBoxes();
+    }
+    
+    if (box == &midiChan)
+    {
+        audioProcessor.apMidiChan = midiChan.getSelectedId();
     }
     
 }
@@ -633,6 +668,7 @@ void Mandelbrot_pluginAudioProcessorEditor::resized()
     noteSelection.setBounds(spacing, 10, 60, 20);
     octaveSelection.setBounds(60 + spacing, 10, 60, 20);
     scaleSelection.setBounds(120 + spacing, 10, 100, 20);
+    midiChan.setBounds(spacing, 40, 120, 20);
     
     //speed slider
     BPM_Slider.setBounds(360, 10, 240, 20);

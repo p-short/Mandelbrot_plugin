@@ -44,6 +44,7 @@ Mandelbrot_pluginAudioProcessor::Mandelbrot_pluginAudioProcessor()
         sphereLogicVector.push_back(std::make_unique<SphereLogic>());
     }
     
+//        std::cout << scalesVector[4].size() << "\n";
 }
 
 Mandelbrot_pluginAudioProcessor::~Mandelbrot_pluginAudioProcessor()
@@ -156,7 +157,7 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     buffer.clear();
 //    processedBuffer.clear();
     
-    if (apScale <= 3)
+    if (apScale <= scalesVector.size() - 1)
     {
 //        std::cout << apScale << "\n";
     
@@ -171,8 +172,8 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
                 //add midi event
                 midiNote = apRootNote + scalesVector[apScale][i];
                 float velocity = (apIsVel) ? sphereLogicVector[i]->getMag() : 1.0f;
-                auto onMessage = juce::MidiMessage::noteOn(1, midiNote, velocity);
-                auto offMessage = juce::MidiMessage::noteOff(1, midiNote, velocity);
+                auto onMessage = juce::MidiMessage::noteOn(apMidiChan, midiNote, velocity);
+                auto offMessage = juce::MidiMessage::noteOff(apMidiChan, midiNote, velocity);
                 auto onTimeStamp = onMessage.getTimeStamp();
                 
                 midiMessages.addEvent(onMessage, onTimeStamp);
