@@ -118,6 +118,7 @@ void Mandelbrot_pluginAudioProcessor::prepareToPlay (double sampleRate, int samp
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+//    noteOff.prepareInfo(sampleRate);
 }
 
 void Mandelbrot_pluginAudioProcessor::releaseResources()
@@ -157,6 +158,16 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     buffer.clear();
 //    processedBuffer.clear();
     
+    auto bufferForClass = buffer.getNumSamples();
+    
+//    noteOff.setNoteOnInfo(1, 65, 0.5);
+    
+//    if (!noteOff.getIsClick())
+//    {
+//        noteOff.countNoteOffDurration(bufferForClass);
+//    }
+    
+    
     if (apScale <= scalesVector.size() - 1)
     {
 //        std::cout << apScale << "\n";
@@ -173,16 +184,44 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
                 midiNote = apRootNote + scalesVector[apScale][i];
                 float velocity = (apIsVel) ? sphereLogicVector[i]->getMag() : 1.0f;
                 auto onMessage = juce::MidiMessage::noteOn(apMidiChan, midiNote, velocity);
-                auto offMessage = juce::MidiMessage::noteOff(apMidiChan, midiNote, velocity);
+//                auto offMessage = juce::MidiMessage::noteOff(apMidiChan, midiNote, velocity);
                 auto onTimeStamp = onMessage.getTimeStamp();
                 
                 midiMessages.addEvent(onMessage, onTimeStamp);
                 
-                auto offTimeStamp = offMessage.getTimeStamp();
-                midiMessages.addEvent(offMessage, offTimeStamp);
+                //push NoteOff instance into vector;
+                noteOffVector.push_back(*new NoteOff(apMidiChan, midiNote, velocity));
+                
+//                auto offTimeStamp = offMessage.getTimeStamp();
+//                midiMessages.addEvent(offMessage, offTimeStamp);
+                
                 sphereLogicVector[i]->setSphereBool(false);
             }
         }
+        
+        for (int i = 0; i < noteOffVector.size(); i++)
+        {
+            if (!noteOffVector[i].getIsClick())
+            {
+                noteOffVector[i].prepareInfo(getSampleRate());
+                noteOffVector[i].countNoteOffDurration(bufferForClass);
+            }
+            
+            else if (noteOffVector[i].getIsClick() && noteOffVector[i].getLatch())
+            {
+                //have function return a midi event insted of printing to the consle.
+                noteOffVector[i].getNoteOffMessage();
+                noteOffVector[i].setLatch(false);
+            }
+        }
+        
+       
+        //check of note is off
+//        if (noteOff.getIsClick() && noteOff.getLatch())
+//        {
+//            noteOff.getNoteOffMessage();
+//            noteOff.setLatch(false);
+//        }
     }
     
     juce::MidiBuffer::Iterator it(midiMessages);

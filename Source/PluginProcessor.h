@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "sphereLogic.h"
 #include "myFunctions.h"
+#include "NoteOff.h"
 
 //==============================================================================
 /**
@@ -93,6 +94,8 @@ public:
 private:
 //    juce::MidiBuffer processedBuffer;
     std::vector <std::unique_ptr <SphereLogic>> sphereLogicVector;
+    
+    std::vector <NoteOff> noteOffVector;
     
     
     //==============================================================================

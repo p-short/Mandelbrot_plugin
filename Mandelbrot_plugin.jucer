@@ -19,6 +19,8 @@
     <FILE id="t2HV1t" name="Sphere.cpp" compile="1" resource="0" file="Source/Sphere.cpp"/>
     <FILE id="wBaNBd" name="Sphere.h" compile="0" resource="0" file="Source/Sphere.h"/>
     <FILE id="Pa9PAe" name="sphereLogic.cpp" compile="1" resource="0" file="Source/sphereLogic.cpp"/>
+    <FILE id="RJ9Tl5" name="NoteOff.h" compile="0" resource="0" file="Source/NoteOff.h"/>
+    <FILE id="JMElVw" name="NoteOff.cpp" compile="1" resource="0" file="Source/NoteOff.cpp"/>
     <FILE id="fSbQC8" name="sphereLogic.h" compile="0" resource="0" file="Source/sphereLogic.h"/>
     <FILE id="ywLsgN" name="MyBtn.cpp" compile="1" resource="0" file="Source/MyBtn.cpp"/>
     <FILE id="BuwtM2" name="MyBtn.h" compile="0" resource="0" file="Source/MyBtn.h"/>
