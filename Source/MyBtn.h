@@ -15,11 +15,14 @@
 //==============================================================================
 /*
  */
+
+//myBtn class inherits properties from JUCE component and listener classes
 class MyBtn  : public juce::Component,
 public juce::Button::Listener,
 public juce::Slider::Listener
 
 {
+    //declarations of methods used within myBtn class
 public:
     MyBtn();
     ~MyBtn() override;
@@ -35,6 +38,7 @@ public:
     
 private:
     
+    //private member variables of myBtn hold all the nesserasy GUI components and images to use.
     int btnCount { 0 };
     juce::Image sliderImage;
     juce::Image sinImage;

@@ -8,14 +8,17 @@
   ==============================================================================
 */
 
+
 #include <JuceHeader.h>
 #include "MyBtn.h"
 
+//myBtn class encapsulates multiple buttons and sliders used for the position modulation section along the bottom of the UI. multiple instances of myBtn are created within PluginEditor
 
 //==============================================================================
 MyBtn::MyBtn()
 {
     //Images for buttons
+    //the images are all png files containing relevant graphics with a transparent background so they can be laid on top of GUI
     sliderImage = juce::ImageCache::getFromMemory(BinaryData::Slider_png, BinaryData::Slider_pngSize);
     sinImage = juce::ImageCache::getFromMemory(BinaryData::Sine_Wave_png, BinaryData::Sine_Wave_pngSize);
     cosImage = juce::ImageCache::getFromMemory(BinaryData::Cosine_Wave_png, BinaryData::Cosine_Wave_pngSize);
@@ -31,7 +34,7 @@ MyBtn::MyBtn()
     addAndMakeVisible(btn);
     btn.addListener(this);
     
-    //set up speed slider
+    //set up speed slider. this controls the frequency of the chosen modulation source
     speedSlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
     speedSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     speedSlider.setRange(0.0, 0.2, 0.001);
@@ -42,7 +45,7 @@ MyBtn::MyBtn()
     addAndMakeVisible(speedSlider);
     speedSlider.addListener(this);
     
-    //set up amp slider
+    //set up amp slider. this controls the amplitude of the chosen modulation source
     ampSlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
     ampSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     ampSlider.setRange(0.0, 1.0, 0.001);
@@ -103,7 +106,7 @@ void MyBtn::sliderValueChanged(juce::Slider* slider)
     }
 }
 
-//set size of custom btn
+//set size and position of myBtn
 void MyBtn::resized()
 {
     speedSlider.setBounds(0, 0, 50, 20);
@@ -112,7 +115,7 @@ void MyBtn::resized()
     btn.setBounds(0, 48, 50, 40);
 }
 
-// return the btn count, this will be useful later
+// return the btn count. This is used to return what state myBtn is in. This is used to change modulation source within the pluginEditor
 int MyBtn::getBtnCount()
 {
     return btnCount;

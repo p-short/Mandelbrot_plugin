@@ -12,13 +12,18 @@
 #include "Sphere.h"
 #include "noise.h"
 
+//the PluginEditor is where the GUI components are put together to produced the UI. Its also where the node circles are rendered on the the UI
 
 //==============================================================================
 Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
+    //the first bit of code ran in the PluginEditor checks to see whats the max value of node circle instances it has to produce. this way we allways start with the maximum amount of node cirlce instances and never have to worry about dynamically adding more during runtime.
+    
+    //the editorMaxVectorSize variable is assigned the size of the first vector in the "editorScalesVector" vector.
     auto editorMaxVectorSize = editorScalesVector[0].size();
     
+    //using a for loop, loop through all the vectors inside "editorScalesVector". With each vector check if its size is bigger than the editorMaxVectorSize variable, if it is assign its value to the editorMaxVectorSize variable.
     for (int i = 0; i < editorScalesVector.size(); i++)
     {
         if (editorScalesVector[i].size() > editorMaxVectorSize)
@@ -27,23 +32,39 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
         }
     }
     
+    //now we know the maximum amount of node circles we need, create them and push them into a vector
     for (auto i = 0; i < editorMaxVectorSize; i++)
     {
         vectorOfSpheres.push_back(std::make_unique<Sphere>());
-//        addAndMakeVisible(*vectorOfSpheres.back());
     }
-        
-    //xpos slider
+    
+    //this is to enable automation of certain parameters from within the plug-in host (your DAW)
+    comboAttach = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.tree, KEY_ID, noteSelection);
+    
+    //here is where I set up all the attributes of the indervidual GUI components.
+    
+    //-----SLIDERS-----
+    
+    //XPOS SLIDER
+    //this slider moves the position of the node circles on the x axis
+    
+    //make Slider vertical and linear
     xPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
+    //sliders range is from -1 to 1 and is stepped through in intervals of 0.001 so the outputs nice and smooth
     xPos_Slider.setRange(-1.0f, 1.0f, 0.001f);
+    //set slider value to 0 in the middle of its range
     xPos_Slider.setValue(0.0f);
+    //set sliders colour,
     xPos_Slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
     xPos_Slider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
     xPos_Slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
+    //add listener to this slider instance, this is so the sliders values and be passed on when slider is moved.
     xPos_Slider.addListener(this);
+    //make slider visible on the UI
     addAndMakeVisible(xPos_Slider);
     
-    //ypos slider
+    //YPOS SLIDER
+    //this slider moves the position of the node circles on the x axis
     yPos_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     yPos_Slider.setRange(-1.0f, 1.0f, 0.001f);
     yPos_Slider.setValue(0.0f);
@@ -53,7 +74,8 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     yPos_Slider.addListener(this);
     addAndMakeVisible(yPos_Slider);
     
-    //const x offset slider
+    //CONST X OFFSET SLIDER
+    //this slider moves the offset of the node circles on the x axis
     constXOffSet.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     constXOffSet.setRange(-1.0f, 1.0f, 0.001f);
     constXOffSet.setValue(0.0f);
@@ -63,7 +85,8 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     constXOffSet.addListener(this);
     addAndMakeVisible(constXOffSet);
     
-    //const y offset slider
+    //CONST Y OFFSET SLIDER
+    //this slider moves the offset of the node circles on the y axis
     constYOffSet.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     constYOffSet.setRange(-1.0f, 1.0f, 0.001f);
     constYOffSet.setValue(0.0f);
@@ -73,7 +96,8 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     constYOffSet.addListener(this);
     addAndMakeVisible(constYOffSet);
     
-    //BMP slider
+    //BMP SLIDER
+    //this slider increases / decreases the speed the arm rotates at
     BPM_Slider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
     BPM_Slider.setTextValueSuffix(" BPM");
     BPM_Slider.setRange(0, 300, 1);
@@ -85,7 +109,38 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     BPM_Slider.addListener(this);
     addAndMakeVisible(BPM_Slider);
     
-    //note selection combobox
+    //NOTE AMOUNT SLIDER
+    // this slider increases / decreases the amount the node circles rendered to the UI
+    noteAmount.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
+    noteAmount.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    noteAmount.setRange(0, 7, 1);
+    noteAmount.setValue(7);
+    noteAmount.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
+    noteAmount.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+    noteAmount.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
+    noteAmount.addListener(this);
+    addAndMakeVisible(noteAmount);
+    
+    //NOTE DURATION SLIDER
+    //this slider selects how long you want inbertween midi note on / note off messages
+    noteDuration_slider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+    noteDuration_slider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    noteDuration_slider.setRange(0, 6, 1);
+    noteDuration_slider.setValue(3);
+    noteDuration_slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
+    noteDuration_slider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+    noteDuration_slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
+    noteDuration_slider.addListener(this);
+    addAndMakeVisible(noteDuration_slider);
+    
+    //-----COMBOBOXES-----
+    
+    //the comboboxes are present at the top left hand corner of the UI, if you click them they present a drop down menu containing multiple options, to select one of the options click the one you want to select.
+    
+    
+    //NOTE SELECTION COMBOBOX
+    //this comobox lets the user select the root note of the scale
+    //addItem puts items in to the combobox, it takes a string to display on the UI and an index id
     noteSelection.addItem("C", 1);
     noteSelection.addItem("C#", 2);
     noteSelection.addItem("D", 3);
@@ -98,13 +153,19 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     noteSelection.addItem("A", 10);
     noteSelection.addItem("A#", 11);
     noteSelection.addItem("B", 12);
+    //place text in centre of combobox
     noteSelection.setJustificationType(juce::Justification::centred);
+    //set colour
     noteSelection.setColour(juce::ComboBox::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+    //add listener to this this combobox
     noteSelection.addListener(this);
+    //set a default value to display when the plugin is opened
     noteSelection.setSelectedId(1);
+    //make combobox visible on the UI
     addAndMakeVisible(noteSelection);
     
-    //octave selection combobox
+    //OCTAVE SELECTION COMBOBOX
+    //this combobox lets the user select what octave they want the notes to be in
     octaveSelection.addItem("0", 1);
     octaveSelection.addItem("1", 2);
     octaveSelection.addItem("2", 3);
@@ -122,8 +183,8 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     octaveSelection.setSelectedId(5);
     addAndMakeVisible(octaveSelection);
     
-    //scale selection combobox
-    
+    //SCALE SELECTION COMBOBOX
+    // this combobox lets the user select what musical scale they want to output
     scaleSelection.addItem("Major 1 Oct", 1);
     scaleSelection.addItem("Major 2 Oct", 2);
     scaleSelection.addItem("Minor 1 Oct", 3);
@@ -136,7 +197,8 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     scaleSelection.setSelectedId(1);
     addAndMakeVisible(scaleSelection);
     
-    // midi channle selection
+    //MIDI CHANNEL SELECTION
+    //this combobox lets the user select what midi channel they want their midi data sent to
     juce::StringArray midiChanList("Midi Channel 1", "Midi Channel 2", "Midi Channel 3", "Midi Channel 4",
                                    "Midi Channel 5", "Midi Channel 6", "Midi Channel 7", "Midi Channel 8",
                                    "Midi Channel 9", "Midi Channel 10", "Midi Channel 11", "Midi Channel 12",
@@ -148,13 +210,22 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     midiChan.setSelectedId(1);
     addAndMakeVisible(midiChan);
     
-    //synch button
-    synchBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
-    synchBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
-    addAndMakeVisible(synchBtn);
-    synchBtn.addListener(this);
+    //-----BUTTONS-----
     
-    //double speed button
+    //SYNCH BUTTON
+    //synch button synchs the plugins tempo to that of the DAWs
+    //button state is set to flase, you need to click on the sych button to enable it
+    synchBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
+    //set buttons colour
+    synchBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
+    //add listerner
+    synchBtn.addListener(this);
+    //make button visible on the UI
+    addAndMakeVisible(synchBtn);
+    
+    
+    //DOUBLE SPEED BUTTON
+    //double the speed of the rotating arm
     doubleSpeedBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
     doubleSpeedBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
     addAndMakeVisible(doubleSpeedBtn);
@@ -238,7 +309,7 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     if (scale <= editorScalesVector.size() - 1)
     {
     
-        for (auto i = 0; i < editorScalesVector[scale].size(); i++)
+        for (auto i = 0; i < noteAmount.getValue(); i++) //editorScalesVector[scale].size()
         {
             if (vectorOfSpheres[i]->checkForPaint(t) && isPlaying)
             {
@@ -259,7 +330,7 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
 //                       vectorOfSpheres[i]->spx, vectorOfSpheres[i]->spy, 3);
         }
         
-        for (auto j = 0; j < editorScalesVector[scale].size() - 1; j++)
+        for (auto j = 0; j < noteAmount.getValue() -1; j++)
         {
             g.setColour(juce::Colours::black);
             g.drawLine(vectorOfSpheres[j]->getXPos() * 160, vectorOfSpheres[j]->getYPos() * 160,
@@ -475,6 +546,9 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     audioProcessor.apcx_pos = cxPos;
     audioProcessor.apcy_pos = cyPos;
     
+    audioProcessor.apNoteAmount = noteAmount.getValue();
+    audioProcessor.apNoteDuration = noteDuration_slider.getValue();
+    
 //    std::cout << "val of x : " << vectorOfSpheres[14]->getXPos() << "\n";
 }
 
@@ -523,6 +597,11 @@ void Mandelbrot_pluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox* box)
         scale = scaleSelection.getSelectedId() - 1;
         audioProcessor.apScale = scaleSelection.getSelectedId() - 1;
         updateComboBoxes();
+        
+        //each time a different scale is selected the note amount slider range / value is set to the length of the current scale
+        unsigned long noteAmountMaxVal = editorScalesVector[scale].size();
+        noteAmount.setRange(0, noteAmountMaxVal, 1);
+        noteAmount.setValue(noteAmountMaxVal);
     }
     
     if (box == &midiChan)
@@ -669,6 +748,8 @@ void Mandelbrot_pluginAudioProcessorEditor::resized()
     octaveSelection.setBounds(60 + spacing, 10, 60, 20);
     scaleSelection.setBounds(120 + spacing, 10, 100, 20);
     midiChan.setBounds(spacing, 40, 120, 20);
+    noteAmount.setBounds(120 + spacing, 40, 100, 20); //360, 10, 240, 20
+   
     
     //speed slider
     BPM_Slider.setBounds(360, 10, 240, 20);
@@ -684,6 +765,9 @@ void Mandelbrot_pluginAudioProcessorEditor::resized()
     
     //half speed button
     halfSpeedBtn.setBounds(510, 30, 50, 20);
+    
+    //note duration slider
+    noteDuration_slider.setBounds(400, 50, 55, 55);
     
     //velocity button
     

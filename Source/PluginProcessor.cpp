@@ -19,9 +19,14 @@ Mandelbrot_pluginAudioProcessor::Mandelbrot_pluginAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+
+tree(*this, nullptr, "PARAMETER", { std::make_unique<juce::AudioParameterChoice> (KEY_ID, KEY_NAME, keyIdArray, 0, KEY_NAME, nullptr, nullptr) })
+
 #endif
 {
+    
+//    std::cout << keyIdArray[0] << "\n";
     //store the size of first vector in 2d vector in variable
     auto maxVectorSize = scalesVector[0].size();
     
@@ -160,19 +165,11 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     
     auto bufferForClass = buffer.getNumSamples();
     
-//    noteOff.setNoteOnInfo(1, 65, 0.5);
-    
-//    if (!noteOff.getIsClick())
-//    {
-//        noteOff.countNoteOffDurration(bufferForClass);
-//    }
-    
-    
     if (apScale <= scalesVector.size() - 1)
     {
 //        std::cout << apScale << "\n";
     
-    for (int i = 0; i < scalesVector[apScale].size(); i++)
+    for (int i = 0; i < apNoteAmount; i++) //scalesVector[apScale].size()
     {
         sphereLogicVector[i]->setPosition(apx_pos, apy_pos, apcx_pos, apcy_pos);
         sphereLogicVector[i]->updatePosition(sphereLogicVector);
@@ -183,35 +180,47 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
                 //add midi event
                 midiNote = apRootNote + scalesVector[apScale][i];
                 float velocity = (apIsVel) ? sphereLogicVector[i]->getMag() : 1.0f;
-                auto onMessage = juce::MidiMessage::noteOn(apMidiChan, midiNote, velocity);
-//                auto offMessage = juce::MidiMessage::noteOff(apMidiChan, midiNote, velocity);
-                auto onTimeStamp = onMessage.getTimeStamp();
                 
+                auto onMessage = juce::MidiMessage::noteOn(apMidiChan, midiNote, velocity);
+                auto onTimeStamp = onMessage.getTimeStamp();
+        
                 midiMessages.addEvent(onMessage, onTimeStamp);
                 
-                //push NoteOff instance into vector;
-                noteOffVector.push_back(*new NoteOff(apMidiChan, midiNote, velocity));
+                auto instantOffMessage = juce::MidiMessage::noteOff(apMidiChan, midiNote, velocity);
+                auto instantOffTimeStamp = instantOffMessage.getTimeStamp();
                 
-//                auto offTimeStamp = offMessage.getTimeStamp();
-//                midiMessages.addEvent(offMessage, offTimeStamp);
-                
+                if (apNoteDuration == 0)
+                {
+                    midiMessages.addEvent(instantOffMessage, instantOffTimeStamp);
+                }
+                else
+                {
+                    //push NoteOff instance into vector
+                    noteOffVector.push_back(std::make_unique<NoteOff>(apMidiChan, midiNote, velocity));
+                }
                 sphereLogicVector[i]->setSphereBool(false);
             }
         }
         
         for (int i = 0; i < noteOffVector.size(); i++)
         {
-            if (!noteOffVector[i].getIsClick())
+            if (!noteOffVector[i]->getIsClick())
             {
-                noteOffVector[i].prepareInfo(getSampleRate());
-                noteOffVector[i].countNoteOffDurration(bufferForClass);
+                noteOffVector[i]->prepareInfo(getSampleRate(), apNoteDuration);
+                noteOffVector[i]->countNoteOffDurration(bufferForClass);
             }
-            
-            else if (noteOffVector[i].getIsClick() && noteOffVector[i].getLatch())
+
+            else if (noteOffVector[i]->getIsClick() && noteOffVector[i]->getLatch())
             {
                 //have function return a midi event insted of printing to the consle.
-                noteOffVector[i].getNoteOffMessage();
-                noteOffVector[i].setLatch(false);
+                noteOffVector[i]->getNoteOffMessage();
+                auto offMessage = juce::MidiMessage::noteOff(noteOffVector[i]->noteOff_midiChannel,
+                                                             noteOffVector[i]->noteOff_midiNote,
+                                                             noteOffVector[i]->noteOff_velo);
+                auto offTimeStamp = offMessage.getTimeStamp();
+                midiMessages.addEvent(offMessage, offTimeStamp);
+                noteOffVector[i]->setLatch(false);
+                noteOffVector.erase(noteOffVector.begin());
             }
         }
         

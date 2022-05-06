@@ -9,9 +9,10 @@
 */
 
 #include "myFunctions.h"
-//helper functions for trig stuff later on down the road
 
-// return coordinats
+
+
+//createCoord creates a Coord instance then instanciates the x & y variables with the value of the 2 arguments that are passed as parameters. createCoord then returns the struct with instanciated variables.
 Coord createCoord(float x_, float y_)
 {
     Coord coord_instance;
@@ -19,7 +20,7 @@ Coord createCoord(float x_, float y_)
     coord_instance.y = y_;
     return coord_instance;
 }
-// return vector
+// createVector creates a Coord instance then subtracts the x & y values of the 2 Coord objects passed as parameters. createVector then returns new Coord instance which x & y values hold vectors between 2 Coords.
 Coord createVector(Coord v0, Coord v1)
 {
     Coord coord_instance;
@@ -28,7 +29,7 @@ Coord createVector(Coord v0, Coord v1)
     return coord_instance;
 }
 
-// return the dotproduct
+// dotProduct takes 2 objects and returns the dot product
 float dotProduct(Coord v0,Coord v1) {
     return v0.x * v1.x + v0.y * v1.y;
 }
@@ -39,7 +40,7 @@ float magnitude(Coord v)
     return sqrt(v.x * v.x + v.y * v.y);
 }
 
-// return normalised vector
+//normalise takes a Coord object then return the normalised vector
 Coord normalise(Coord v)
 {
     float m = magnitude(v);
@@ -49,7 +50,7 @@ Coord normalise(Coord v)
     return coord_instance;
 }
 
-//returns the distance between two coords
+//distance returns the Euclidean distance between two coords
 float distance(float x0 ,float y0 , float x1, float y1)
 {
     float dx = x1 - x0;
@@ -57,12 +58,13 @@ float distance(float x0 ,float y0 , float x1, float y1)
     return sqrt(dx * dx + dy * dy);
 }
 
-//clamp a value to a min and max so the value stays in that constraint.
+//clampIt clamps a value to a min and max so the value stays in that constraint.
 float clampIt(float value, float min, float max)
 {
     return std::min(std::max(value, min), max);
 }
 
+//changeRange takes a value and a range then returns them values mapped to a new range
 float changeRange(float value, float a, float b, float c, float d)
 {
     value = (value - a) / (b - a);

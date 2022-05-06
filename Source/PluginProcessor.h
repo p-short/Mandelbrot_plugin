@@ -13,6 +13,9 @@
 #include "myFunctions.h"
 #include "NoteOff.h"
 
+#define KEY_ID "key"
+#define KEY_NAME "Key"
+
 //==============================================================================
 /**
 */
@@ -75,6 +78,9 @@ public:
     bool apIsVel { false };
     bool apIsPlaying { false };
     
+    int apNoteAmount { 7 };
+    int apNoteDuration { 3 };
+    
     /*
      nested vector containing scales for later
      [0] = major scale 1 oct,
@@ -91,12 +97,15 @@ public:
         {0, 4, 7, 11, 12, 16, 19, 23, 24, 28, 31, 35},
         {0, 3, 7, 10, 12, 15, 19, 22, 24, 27, 31, 34}};
 
+    const juce::StringArray keyIdArray{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+    
+    juce::AudioProcessorValueTreeState tree;
+
 private:
 //    juce::MidiBuffer processedBuffer;
     std::vector <std::unique_ptr <SphereLogic>> sphereLogicVector;
     
-    std::vector <NoteOff> noteOffVector;
-    
+    std::vector <std::unique_ptr <NoteOff>> noteOffVector;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Mandelbrot_pluginAudioProcessor)

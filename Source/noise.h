@@ -15,6 +15,10 @@
 #include <cmath>
 #include <cstdlib>
 
+//This header file contains the Perlin noise algorithm used to modulate the positions of the node circles when "white noise" is selected on the position modulating button.
+
+//The Perlin noise implementation is adapted from the noise function from the JavaScript open source library p5.js https://p5js.org, to get it to run on C++ i needed to modify and translate the code.
+
 int PERLIN_YWRAPB = 4;
 int PERLIN_YWRAP = 1 << PERLIN_YWRAPB;
 int PERLIN_ZWRAPB = 8;
@@ -28,8 +32,7 @@ auto scaled_cosine = [](float i)
     return 0.5 * (1.0 - cos(i * M_PI));
 };
 
-//for my project I used this noise for I needed the noises range to be between -1 & 1.
-//if you need its range to be 0 to 1 just remove the setRange function and simply return "r".
+//lamda function to set one range to another
 auto setRange = [](float value, float a, float b, float c, float d)
 {
     value = (value - a) / (b - a);
@@ -40,15 +43,15 @@ float *perlin = nullptr;
 
 float myPerlinNoise(float x)
 {
+    //if perlin pointer is null fill array the size of PERLIN_SIZE with random values.
     if (perlin == nullptr)
     {
-//        std::cout << "this should only be called once";
         perlin = new float[PERLIN_SIZE + 1];
         for (int i = 0; i < PERLIN_SIZE + 1; i++) {
             perlin[i] = (float) rand() / RAND_MAX;
         }
     }
-    
+    //process array and smooth values to produce Perlin noise.
     if (x < 0)
     {
         x = -x;
@@ -94,6 +97,7 @@ float myPerlinNoise(float x)
             xf--;
         }
     }
+    //return values with the range of -1 to 1
     return setRange(r, 0, 1, -1, 1);
 }
 

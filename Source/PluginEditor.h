@@ -97,6 +97,8 @@ private:
     juce::Slider BPM_Slider;
     juce::Slider constXOffSet;
     juce::Slider constYOffSet;
+    juce::Slider noteAmount;
+    juce::Slider noteDuration_slider;
     
     juce::ComboBox noteSelection;
     juce::ComboBox octaveSelection;
@@ -143,11 +145,13 @@ private:
     bool isPlaying { false };
 
     std::vector<std::unique_ptr<Sphere>> vectorOfSpheres;
-//    juce::MidiBuffer midBuf;
-   
+    
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     Mandelbrot_pluginAudioProcessor& audioProcessor;
+    
+public:
+    std::unique_ptr <juce::AudioProcessorValueTreeState::ComboBoxAttachment> comboAttach;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Mandelbrot_pluginAudioProcessorEditor)
 };
