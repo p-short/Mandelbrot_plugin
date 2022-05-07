@@ -64,6 +64,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     std::atomic <double> currentInfo { 0 };
+    std::atomic <int> currentBPM { 120 };
     double tp { M_PI * 2 };
     double startAng { -M_PI / 2 };
 
@@ -86,6 +87,10 @@ public:
     
     int apNoteAmount { 7 };
     int apNoteDuration { 3 };
+    int apPlaybackSpeed { 64 };
+    bool apSynch { false };
+    float apBPM { 120 };
+    float tempBPM { 120 };
     
     /*
      nested vector containing scales for later

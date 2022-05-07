@@ -165,16 +165,46 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     {
         juce::AudioPlayHead::CurrentPositionInfo info;
         myPlayHead->getCurrentPosition(info);
-        info.isPlaying = true;
+        
         playHeadIsPlaying = info.isPlaying;
+//        if (apIsPlaying)
+//        {
+//            playHeadIsPlaying = true;
+//        }
+//        else if (!apIsPlaying)
+//        {
+//            playHeadIsPlaying = false;
+//        }
+        
+//        info.isPlaying = true;
+        
+        //playstate (plug-in controls the bpm & playing)
+        if (!apSynch)
+        {
+            //std::cout << "midibrot is in play mode" << "\n";
+            tempBPM = apBPM;
+            
+        }
+        //dawstate (daw controls bpm & playing)
+        else if (apSynch)
+        {
+            //std::cout << "midibrot is in DAW mode" << "\n";
+            // if this mode need to send this value back to the gui;
+            tempBPM = info.bpm;
+            currentBPM.store(info.bpm);
+        }
+        
+        std::cout << tempBPM << "\n";
+        
         //get info from host, pass the atomic a starting angle and make appropriate calculations
-        double numSampsInBar = (60 / info.bpm * getSampleRate()) / 64;
+        double numSampsInBar = (60 / tempBPM * getSampleRate()) / apPlaybackSpeed; // 128 = double time. 64 = normal 32 = halfspeed.
         double increment =  tp / numSampsInBar;
         currentInfo.store(startAng);
         
         //if play is pressed on the DAW start rotation.
-        startAng = (info.isPlaying) ? startAng += increment : startAng = -M_PI / 2;
+        startAng = (playHeadIsPlaying) ? startAng += increment : startAng = -M_PI / 2;
     }
+    
     
     auto bufferForClass = buffer.getNumSamples();
     

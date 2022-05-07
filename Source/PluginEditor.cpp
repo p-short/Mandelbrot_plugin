@@ -16,7 +16,7 @@
 
 //==============================================================================
 Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), rotationValue(p.currentInfo), audioProcessor (p)
+    : AudioProcessorEditor (&p), rotationValue(p.currentInfo), bpmFromAudioThread(p.currentBPM), audioProcessor (p)
 {
     //the first bit of code ran in the PluginEditor checks to see whats the max value of node circle instances it has to produce. this way we allways start with the maximum amount of node cirlce instances and never have to worry about dynamically adding more during runtime.
     
@@ -109,6 +109,8 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     BPM_Slider.addListener(this);
     addAndMakeVisible(BPM_Slider);
     
+    
+    
     //NOTE AMOUNT SLIDER
     // this slider increases / decreases the amount the node circles rendered to the UI
     noteAmount.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
@@ -132,6 +134,7 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     noteDuration_slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     noteDuration_slider.addListener(this);
     addAndMakeVisible(noteDuration_slider);
+    
     
     //-----COMBOBOXES-----
     
@@ -369,12 +372,43 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi, 579, 222));
     g.drawText("y offset", 579, 222, 100, 50, juce::Justification::topLeft);
     g.restoreState();
+    
+    //center of the note duration component
+    float centreX = noteDuration_slider.getX() + 30;
+    float centreY = noteDuration_slider.getY() + 30;
+    float myAng = M_PI / 2 + M_PI / 4;
+    float num2DivBy  = 6;
+    float rangeInRad = 4.71238898;
+    float step = rangeInRad / num2DivBy;
+    float textRad = 32.5;
+    
+    //array of strings that indercate the note duration these are then drawn around the dial corresponding with the dials steps.
+    std::array<std::string, 7> stringArray = {"Imp", "1/32", "1/16", "1/8", "1/4", "1/2", "1"};
+    
+    g.saveState();
+    g.setFont(10.0);
+    for (int i = 0; i < 7; i++)
+    {
+        g.drawText(stringArray[i], centreX + textRad * cos(myAng + i * step) - 10, centreY + textRad * sin(myAng + i * step) - 10, 20, 20, juce::Justification::horizontallyCentred);
+    }
 }
 
 
 void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
 {
     rotation = rotationValue.getValue();
+    
+    //is synch button is pressed disable bpm slider from being dragged by mouse and set the sliders values to the DAWs tempo from audio thread.
+    if (synchBool)
+    {
+        BPM_Slider.setEnabled(false);
+        BPM_Slider.setValue(bpmFromAudioThread.getBPM());
+    }
+    else
+    {
+        BPM_Slider.setEnabled(true);
+    }
+    
     repaint();
     
     // remember to send these to audio processer to collision detection matches up.
@@ -549,6 +583,7 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     
     audioProcessor.apNoteAmount = noteAmount.getValue();
     audioProcessor.apNoteDuration = noteDuration_slider.getValue();
+    audioProcessor.apBPM = BPM_Slider.getValue();
     
 //    std::cout << "val of x : " << vectorOfSpheres[14]->getXPos() << "\n";
 }
@@ -622,6 +657,8 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
             synchBtnOnState = OnState::on;
             synchBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
             synchBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colour(36, 44, 68));
+            synchBool = true;
+            audioProcessor.apSynch = true;
         }
         
         else if (synchBtnOnState == OnState::on)
@@ -629,12 +666,15 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
             synchBtnOnState = OnState::off;
             synchBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
             synchBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
+            synchBool = false;
+            audioProcessor.apSynch = false;
         }
     }
     
     if (button == &doubleSpeedBtn)
     {
         divBy = 2;
+        audioProcessor.apPlaybackSpeed = 128;
         
         normalSpeedBtnOnState = OnState::off;
         normalSpeedBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
@@ -655,6 +695,7 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
     if (button == &normalSpeedBtn)
     {
         divBy = 1;
+        audioProcessor.apPlaybackSpeed = 64;
         
         doubleSpeedBtnOnState = OnState::off;
         doubleSpeedBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
@@ -675,6 +716,7 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
     if (button == &halfSpeedBtn)
     {
         divBy = 0.5;
+        audioProcessor.apPlaybackSpeed = 32;
         
         doubleSpeedBtnOnState = OnState::off;
         doubleSpeedBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
@@ -768,7 +810,7 @@ void Mandelbrot_pluginAudioProcessorEditor::resized()
     halfSpeedBtn.setBounds(510, 30, 50, 20);
     
     //note duration slider
-    noteDuration_slider.setBounds(400, 50, 55, 55);
+    noteDuration_slider.setBounds(400, 50, 60, 60);
     
     //velocity button
     

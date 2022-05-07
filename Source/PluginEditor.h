@@ -26,6 +26,17 @@ struct AtomicRotation
     std::atomic <double>& value;
 };
 
+struct AtomicBPM
+{
+    AtomicBPM(std::atomic <int>& bpmToUse) : bpm(bpmToUse) {}
+    
+    int getBPM()
+    {
+        return bpm.load();
+    }
+    std::atomic <int>& bpm;
+};
+
 
 //==============================================================================
 /**
@@ -91,6 +102,7 @@ public:
                                                     {0, 3, 7, 10, 12, 15, 19, 22, 24, 27, 31, 34}};
     
     AtomicRotation rotationValue;
+    AtomicBPM bpmFromAudioThread;
     
     
     //==============================================================================
@@ -154,7 +166,8 @@ private:
     juce::ImageComponent playStopBtnImageComp;
     juce::TextButton playStopBtn;
     int playStopBtnCount { 0 };
-    bool isPlaying { true };
+    bool isPlaying { false };
+    bool synchBool { false };
     
     double rotation { -M_PI / 2 };
 
