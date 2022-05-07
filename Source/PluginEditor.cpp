@@ -16,7 +16,7 @@
 
 //==============================================================================
 Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+    : AudioProcessorEditor (&p), rotationValue(p.currentInfo), audioProcessor (p)
 {
     //the first bit of code ran in the PluginEditor checks to see whats the max value of node circle instances it has to produce. this way we allways start with the maximum amount of node cirlce instances and never have to worry about dynamically adding more during runtime.
     
@@ -297,7 +297,7 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     g.setColour(juce::Colours::black);
     g.drawEllipse(300 - borderRadius, 220 - borderRadius, borderRadius * 2, borderRadius * 2, 2);
     g.setOrigin(getWidth() / 2, getHeight() / 2 + 20);
-    g.drawLine(0, 0, borderRadius * cos(t), borderRadius * sin(t), 1);
+    g.drawLine(0, 0, borderRadius * cos(rotation), borderRadius * sin(rotation), 1);
     
 
     
@@ -311,7 +311,7 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     
         for (auto i = 0; i < noteAmount.getValue(); i++) //editorScalesVector[scale].size()
         {
-            if (vectorOfSpheres[i]->checkForPaint(t) && isPlaying)
+            if (vectorOfSpheres[i]->checkForPaint(rotation) && isPlaying)
             {
                 g.setColour(juce::Colour::fromFloatRGBA (0.996f, 0.509f, 0.549f, 1.0f));
             }
@@ -374,6 +374,7 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
 
 void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
 {
+    rotation = rotationValue.getValue();
     repaint();
     
     // remember to send these to audio processer to collision detection matches up.

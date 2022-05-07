@@ -63,6 +63,11 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     
+    std::atomic <double> currentInfo { 0 };
+    double tp { M_PI * 2 };
+    double startAng { -M_PI / 2 };
+
+    
     float apx_pos { 0 };
     float apy_pos { 0 };
     float apcx_pos { 0 };
@@ -77,6 +82,7 @@ public:
     int apMidiChan { 1 };
     bool apIsVel { false };
     bool apIsPlaying { false };
+    bool playHeadIsPlaying;
     
     int apNoteAmount { 7 };
     int apNoteDuration { 3 };
@@ -99,6 +105,7 @@ public:
 
     const juce::StringArray keyIdArray{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     
+        
     juce::AudioProcessorValueTreeState tree;
 
 private:

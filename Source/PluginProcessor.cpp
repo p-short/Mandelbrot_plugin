@@ -161,7 +161,20 @@ bool Mandelbrot_pluginAudioProcessor::isBusesLayoutSupported (const BusesLayout&
 void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     buffer.clear();
-//    processedBuffer.clear();
+    if (auto* myPlayHead = getPlayHead())
+    {
+        juce::AudioPlayHead::CurrentPositionInfo info;
+        myPlayHead->getCurrentPosition(info);
+        info.isPlaying = true;
+        playHeadIsPlaying = info.isPlaying;
+        //get info from host, pass the atomic a starting angle and make appropriate calculations
+        double numSampsInBar = (60 / info.bpm * getSampleRate()) / 64;
+        double increment =  tp / numSampsInBar;
+        currentInfo.store(startAng);
+        
+        //if play is pressed on the DAW start rotation.
+        startAng = (info.isPlaying) ? startAng += increment : startAng = -M_PI / 2;
+    }
     
     auto bufferForClass = buffer.getNumSamples();
     
@@ -175,7 +188,7 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
         sphereLogicVector[i]->updatePosition(sphereLogicVector);
         sphereLogicVector[i]->limitSphere();
 
-            if (sphereLogicVector[i]->checkIntersection(inc, sphereLogicVector[i]->getSphereBool()) && apIsPlaying)
+            if (sphereLogicVector[i]->checkIntersection(startAng, sphereLogicVector[i]->getSphereBool()) && playHeadIsPlaying)
             {
                 //add midi event
                 midiNote = apRootNote + scalesVector[apScale][i];
@@ -224,6 +237,8 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
             }
         }
         
+
+        
        
         //check of note is off
 //        if (noteOff.getIsClick() && noteOff.getLatch())
@@ -240,7 +255,7 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     while (it.getNextEvent(currentMessage, samplePos))
     {
         
-        std::cout << currentMessage.getDescription() << "\n";
+        //std::cout << currentMessage.getDescription() << "\n";
         
 //        if (currentMessage.isNoteOnOrOff ())
 //        {

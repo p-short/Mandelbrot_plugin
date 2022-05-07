@@ -15,6 +15,16 @@
 #include "MyBtn.h"
 
 
+struct AtomicRotation
+{
+    AtomicRotation(std::atomic <double>& valueToUse) : value(valueToUse) {}
+    //this is getting called 60 times a second in timer callback
+    double getValue()
+    {
+        return value.load();
+    }
+    std::atomic <double>& value;
+};
 
 
 //==============================================================================
@@ -80,6 +90,8 @@ public:
                                                     {0, 4, 7, 11, 12, 16, 19, 23, 24, 28, 31, 35},
                                                     {0, 3, 7, 10, 12, 15, 19, 22, 24, 27, 31, 34}};
     
+    AtomicRotation rotationValue;
+    
     
     //==============================================================================
     void paint (juce::Graphics&) override;
@@ -142,7 +154,9 @@ private:
     juce::ImageComponent playStopBtnImageComp;
     juce::TextButton playStopBtn;
     int playStopBtnCount { 0 };
-    bool isPlaying { false };
+    bool isPlaying { true };
+    
+    double rotation { -M_PI / 2 };
 
     std::vector<std::unique_ptr<Sphere>> vectorOfSpheres;
     
