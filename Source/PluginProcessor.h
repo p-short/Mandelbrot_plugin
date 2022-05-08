@@ -91,6 +91,7 @@ public:
     bool apSynch { false };
     float apBPM { 120 };
     float tempBPM { 120 };
+    bool apisPlayBtn { false };
     
     /*
      nested vector containing scales for later

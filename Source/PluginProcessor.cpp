@@ -166,7 +166,7 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
         juce::AudioPlayHead::CurrentPositionInfo info;
         myPlayHead->getCurrentPosition(info);
         
-        playHeadIsPlaying = info.isPlaying;
+        //playHeadIsPlaying = info.isPlaying;
 //        if (apIsPlaying)
 //        {
 //            playHeadIsPlaying = true;
@@ -184,6 +184,15 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
             //std::cout << "midibrot is in play mode" << "\n";
             tempBPM = apBPM;
             
+            if (apisPlayBtn)
+            {
+                apIsPlaying = true;
+            }
+            else
+            {
+                apIsPlaying = false;
+            }
+            
         }
         //dawstate (daw controls bpm & playing)
         else if (apSynch)
@@ -192,6 +201,7 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
             // if this mode need to send this value back to the gui;
             tempBPM = info.bpm;
             currentBPM.store(info.bpm);
+            apIsPlaying = false;
         }
         
     
@@ -201,7 +211,7 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
         currentInfo.store(startAng);
         
         //if play is pressed on the DAW start rotation.
-        startAng = (playHeadIsPlaying) ? startAng += increment : startAng = -M_PI / 2;
+        startAng = (apIsPlaying) ? startAng += increment : startAng = -M_PI / 2;
     }
     
     
@@ -217,7 +227,7 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
         sphereLogicVector[i]->updatePosition(sphereLogicVector);
         sphereLogicVector[i]->limitSphere();
 
-            if (sphereLogicVector[i]->checkIntersection(startAng, sphereLogicVector[i]->getSphereBool()) && playHeadIsPlaying)
+            if (sphereLogicVector[i]->checkIntersection(startAng, sphereLogicVector[i]->getSphereBool()) && apIsPlaying)
             {
                 //add midi event
                 midiNote = apRootNote + scalesVector[apScale][i];

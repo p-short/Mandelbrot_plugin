@@ -416,14 +416,27 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
         BPM_Slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126).withAlpha(0.5f));
         BPM_Slider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
         BPM_Slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
+//        playStopBtn.setEnabled(false);
     }
     else
     {
+    
         BPM_Slider.setEnabled(true);
         BPM_Slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
         BPM_Slider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
         BPM_Slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     }
+    
+//    if (isPlaying)
+//    {
+//        playStopBtnImageComp.setImage(stopBtnImage);
+//    }
+//    
+//    else
+//    {
+//        playStopBtnImageComp.setImage(playBtnImage);
+//    }
+//    
     
     myBtn_one.disableSliders(xMode);
     myBtn_two.disableSliders(yMode);
@@ -525,8 +538,6 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
         xPos_Slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126).withAlpha(0.5f));
         xPos_Slider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
         xPos_Slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
-        
-        
     }
     
     else
@@ -543,11 +554,19 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     if (yMode != "slider")
     {
         yFreq += myBtn_two.getSpeedSliderVal();
+        yPos_Slider.setEnabled(false);
+        yPos_Slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126).withAlpha(0.5f));
+        yPos_Slider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
+        yPos_Slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
     }
     
     else
     {
         yFreq = 0;
+        yPos_Slider.setEnabled(true);
+        yPos_Slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
+        yPos_Slider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+        yPos_Slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     }
     
     //cxFreq logic
@@ -555,11 +574,19 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     if (cxMode != "slider")
     {
         cxFreq += myBtn_three.getSpeedSliderVal();
+        constXOffSet.setEnabled(false);
+        constXOffSet.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126).withAlpha(0.5f));
+        constXOffSet.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
+        constXOffSet.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
     }
     
     else
     {
         cxFreq = 0;
+        constXOffSet.setEnabled(true);
+        constXOffSet.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
+        constXOffSet.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+        constXOffSet.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     }
     
     //cyFreq logic
@@ -567,11 +594,20 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     if (cyMode != "slider")
     {
         cyFreq += myBtn_four.getSpeedSliderVal();
+        constYOffSet.setEnabled(false);
+        constYOffSet.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126).withAlpha(0.5f));
+        constYOffSet.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
+        constYOffSet.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
+        
     }
     
     else
     {
         cyFreq = 0;
+        constYOffSet.setEnabled(true);
+        constYOffSet.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
+        constYOffSet.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+        constYOffSet.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     }
    
     for (int i = 0; i < vectorOfSpheres.size(); i++)
@@ -680,24 +716,37 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
 {
     if (button == &synchBtn)
     {
+       
         //eventully add the code to give plug acsess to Abeltons tempo.
         if (synchBtnOnState == OnState::off)
         {
+            playStopBtnImageComp.setImage(playBtnImage);
+            playStopBtn.setEnabled(false);
             synchBtnOnState = OnState::on;
             synchBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
             synchBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colour(36, 44, 68));
             synchBool = true;
-            audioProcessor.apSynch = true;
         }
         
         else if (synchBtnOnState == OnState::on)
         {
+            playStopBtn.setEnabled(true);
             synchBtnOnState = OnState::off;
             synchBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
             synchBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
             synchBool = false;
-            audioProcessor.apSynch = false;
         }
+
+        if (!synchBool && isPlaying)
+        {
+            playStopBtnCount = 1;
+            playStopBtn.triggerClick();
+        }
+        else
+        {
+            playStopBtnCount = 0;
+        }
+        audioProcessor.apSynch = synchBool;
     }
     
     if (button == &doubleSpeedBtn)
@@ -785,24 +834,30 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
     
     if (button == &playStopBtn)
     {
+        //std::cout << "im calling this" << "\n";
         playStopBtnCount++;
         playStopBtnCount = playStopBtnCount % 2;
+        std::cout << playStopBtnCount << "\n";
+    
         
         switch (playStopBtnCount)
         {
         case 1:
+            //play
             isPlaying = true;
             playStopBtnImageComp.setImage(stopBtnImage);
             break;
         
         case 0:
+            //stop
             isPlaying = false;
             playStopBtnImageComp.setImage(playBtnImage);
             break;
         }
-        audioProcessor.apIsPlaying = isPlaying;
+        audioProcessor.apisPlayBtn = isPlaying;
     }
 }
+
 
 void Mandelbrot_pluginAudioProcessorEditor::updateComboBoxes()
 {
