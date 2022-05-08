@@ -51,7 +51,7 @@ private:
     float ap_dist1;
     float ap_dist2;
     double ap_scalarProjection;
-    const int ap_sphereRadius { 10 };
-    const int ap_bordRad = 170;
+    const int ap_sphereRadius { 7 };
+    const int ap_bordRad = 140;
     bool ap_isIntersecting = true;
 };

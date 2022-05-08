@@ -34,6 +34,8 @@ public:
     int getBtnCount();
     float getSpeedSliderVal();
     float getAmpSliderVal();
+    void setModName(std::string _modName, float _textOffset);
+    void disableSliders(std::string _stringToCheck);
     juce::TextButton btn;
     
 private:
@@ -47,6 +49,8 @@ private:
     juce::ImageComponent myBtnImage;
     juce::Slider speedSlider;
     juce::Slider ampSlider;
+    std::string modName;
+    float textOffset;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MyBtn)
 };

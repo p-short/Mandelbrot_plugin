@@ -194,8 +194,7 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
             currentBPM.store(info.bpm);
         }
         
-        std::cout << tempBPM << "\n";
-        
+    
         //get info from host, pass the atomic a starting angle and make appropriate calculations
         double numSampsInBar = (60 / tempBPM * getSampleRate()) / apPlaybackSpeed; // 128 = double time. 64 = normal 32 = halfspeed.
         double increment =  tp / numSampsInBar;

@@ -63,6 +63,12 @@ MyBtn::~MyBtn()
 
 void MyBtn::paint (juce::Graphics& g)
 {
+    g.setColour(juce::Colours::white);
+    g.setFont(12);
+    g.drawText(modName + " Pos Mod", textOffset, 0, 100, 20, juce::Justification::horizontallyJustified);
+    g.setColour(juce::Colours::black);
+    g.drawText("Speed", 17, 15, 100, 20, juce::Justification::horizontallyJustified);
+    g.drawText("Scale", 19, 39, 100, 20, juce::Justification::horizontallyJustified);
 }
 
 //cycles through all the images, one image per click
@@ -109,10 +115,10 @@ void MyBtn::sliderValueChanged(juce::Slider* slider)
 //set size and position of myBtn
 void MyBtn::resized()
 {
-    speedSlider.setBounds(0, 0, 50, 20);
-    ampSlider.setBounds(0, 23, 50, 20);
-    myBtnImage.setBounds(0, 48, 50, 40);
-    btn.setBounds(0, 48, 50, 40);
+    speedSlider.setBounds(0, 27, 65, 20);
+    ampSlider.setBounds(0, 51, 65, 20);
+    myBtnImage.setBounds(7, 72, 50, 40);
+    btn.setBounds(7, 72, 50, 40);
 }
 
 // return the btn count. This is used to return what state myBtn is in. This is used to change modulation source within the pluginEditor
@@ -131,4 +137,41 @@ float MyBtn::getSpeedSliderVal()
 float MyBtn::getAmpSliderVal()
 {
     return ampSlider.getValue();
+}
+
+void MyBtn::setModName(std::string _modName, float _textOffset)
+{
+    modName = _modName;
+    textOffset = _textOffset;
+}
+
+// when myBtn is on slider mode remove some of the alpha from the sliders appearance and disable modulation section sliders so then cant be moved. When in slider mode only the sliders can move the position of the node circles.
+void MyBtn::disableSliders(std::string _stringToCheck)
+{
+    if (_stringToCheck == "slider")
+    {
+        speedSlider.setValue(0);
+        speedSlider.setEnabled(false);
+        speedSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126).withAlpha(0.5f));
+        speedSlider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
+        speedSlider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
+        
+        ampSlider.setValue(0);
+        ampSlider.setEnabled(false);
+        ampSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126).withAlpha(0.5f));
+        ampSlider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
+        ampSlider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
+    }
+    else
+    {
+        speedSlider.setEnabled(true);
+        speedSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
+        speedSlider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+        speedSlider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
+        
+        ampSlider.setEnabled(true);
+        ampSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
+        ampSlider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+        ampSlider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
+    }
 }

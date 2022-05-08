@@ -51,7 +51,9 @@ class Mandelbrot_pluginAudioProcessorEditor  : public juce::AudioProcessorEditor
 public:
     Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor&);
     ~Mandelbrot_pluginAudioProcessorEditor() override;
-    int borderRadius = 170;
+    int borderRadius = 140;
+    int smallerBorderRadius = 130;
+    int sphereRad = 7;
     double t { -M_PI / 2 };
 //    double speed { 0.0 };
     float divBy { 1.0 };
@@ -168,7 +170,8 @@ private:
     int playStopBtnCount { 0 };
     bool isPlaying { false };
     bool synchBool { false };
-    
+ 
+
     double rotation { -M_PI / 2 };
 
     std::vector<std::unique_ptr<Sphere>> vectorOfSpheres;

@@ -55,8 +55,8 @@ private:
     float dist1;
     float dist2;
     double scalarProjection;
-    int sphereRadius { 10 };
-    int bordRad { 170 };
+    int sphereRadius { 7 };
+    int bordRad { 140 };
     float newX { 0 };
     float newY { 0 };
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Sphere)
