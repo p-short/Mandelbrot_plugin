@@ -65,6 +65,7 @@ public:
     
     std::atomic <double> currentInfo { 0 };
     std::atomic <int> currentBPM { 120 };
+    std::atomic <bool> currentBtnState;
     double tp { M_PI * 2 };
     double startAng { -M_PI / 2 };
 

@@ -183,7 +183,6 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
         {
             //std::cout << "midibrot is in play mode" << "\n";
             tempBPM = apBPM;
-            
             if (apisPlayBtn)
             {
                 apIsPlaying = true;
@@ -201,9 +200,27 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
             // if this mode need to send this value back to the gui;
             tempBPM = info.bpm;
             currentBPM.store(info.bpm);
-            apIsPlaying = false;
+            if (apSynch && !info.isPlaying)
+            {
+                apIsPlaying = false;
+            }
+            else if (apSynch && info.isPlaying)
+            {
+                apIsPlaying = true;
+            }
+            currentBtnState.store(apIsPlaying);
         }
         
+//        else if (apSynch && info.isPlaying)
+//        {
+//            apIsPlaying = true;
+//        }
+//        else if (apSynch && !info.isPlaying)
+//        {
+//            apIsPlaying = false;
+//        }
+        
+        std::cout << apIsPlaying << "\n";
     
         //get info from host, pass the atomic a starting angle and make appropriate calculations
         double numSampsInBar = (60 / tempBPM * getSampleRate()) / apPlaybackSpeed; // 128 = double time. 64 = normal 32 = halfspeed.

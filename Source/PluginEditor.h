@@ -14,11 +14,11 @@
 #include "myFunctions.h"
 #include "MyBtn.h"
 
-
+//structs that contain atomics so data can be passed from the audio thread to the GUI thread reliably as they both run at different speeds.
 struct AtomicRotation
 {
     AtomicRotation(std::atomic <double>& valueToUse) : value(valueToUse) {}
-    //this is getting called 60 times a second in timer callback
+    //this is getting called 60 times a second in timer callback in pluginEditor.cpp
     double getValue()
     {
         return value.load();
@@ -35,6 +35,17 @@ struct AtomicBPM
         return bpm.load();
     }
     std::atomic <int>& bpm;
+};
+
+struct AtomicBtn
+{
+    AtomicBtn(std::atomic <bool>& btnStateToUse) : btnState(btnStateToUse) {}
+    
+    bool getBtnState()
+    {
+        return btnState.load();
+    }
+    std::atomic <bool>& btnState;
 };
 
 
@@ -103,8 +114,10 @@ public:
                                                     {0, 4, 7, 11, 12, 16, 19, 23, 24, 28, 31, 35},
                                                     {0, 3, 7, 10, 12, 15, 19, 22, 24, 27, 31, 34}};
     
+    //atomics
     AtomicRotation rotationValue;
     AtomicBPM bpmFromAudioThread;
+    AtomicBtn btnBoolFromAudioThread;
     
     
     //==============================================================================

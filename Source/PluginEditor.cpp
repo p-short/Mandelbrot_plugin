@@ -16,7 +16,7 @@
 
 //==============================================================================
 Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), rotationValue(p.currentInfo), bpmFromAudioThread(p.currentBPM), audioProcessor (p)
+    : AudioProcessorEditor (&p), rotationValue(p.currentInfo), bpmFromAudioThread(p.currentBPM), btnBoolFromAudioThread(p.currentBtnState) ,audioProcessor (p)
 {
     //the first bit of code ran in the PluginEditor checks to see whats the max value of node circle instances it has to produce. this way we allways start with the maximum amount of node cirlce instances and never have to worry about dynamically adding more during runtime.
     
@@ -310,9 +310,9 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
                 g.setColour(juce::Colour::fromFloatRGBA (0.996f, 0.509f, 0.549f, 0.5f));
             }
             
-            g.fillEllipse((vectorOfSpheres[i]->getXPos() * smallerBorderRadius) - sphereRad,
-                          (vectorOfSpheres[i]->getYPos() * smallerBorderRadius) - sphereRad,
-                          8 * 2, 8 * 2);
+            g.fillEllipse((vectorOfSpheres[i]->getXPos() * (borderRadius - sphereRad - 1)) - sphereRad,
+                          (vectorOfSpheres[i]->getYPos() * (borderRadius - sphereRad - 1)) - sphereRad,
+                          sphereRad * 2, sphereRad * 2);
             
             //line of scalar projection
 //            g.setColour(juce::Colours::green);
@@ -322,11 +322,11 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
         
         for (auto j = 0; j < noteAmount.getValue() -1; j++)
         {
-            g.setColour(juce::Colours::black);
-            g.drawLine(vectorOfSpheres[j]->getXPos() * smallerBorderRadius,
-                       vectorOfSpheres[j]->getYPos() * smallerBorderRadius,
-                       vectorOfSpheres[j +1]->getXPos() * smallerBorderRadius,
-                       vectorOfSpheres[j +1]->getYPos() * smallerBorderRadius, 0.5);
+            g.setColour(juce::Colours::white);
+            g.drawLine(vectorOfSpheres[j]->getXPos() * (borderRadius - (sphereRad)),
+                       vectorOfSpheres[j]->getYPos() * (borderRadius - (sphereRad)),
+                       vectorOfSpheres[j +1]->getXPos() * (borderRadius - (sphereRad)),
+                       vectorOfSpheres[j +1]->getYPos() * (borderRadius - (sphereRad)), 0.5);
         }
     }
     
@@ -411,6 +411,14 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     //is synch button is pressed disable bpm slider from being dragged by mouse and set the sliders values to the DAWs tempo from audio thread.
     if (synchBool)
     {
+        if (btnBoolFromAudioThread.getBtnState())
+        {
+            isPlaying = true;
+        }
+        else
+        {
+            isPlaying = false;
+        }
         BPM_Slider.setEnabled(false);
         BPM_Slider.setValue(bpmFromAudioThread.getBPM());
         BPM_Slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126).withAlpha(0.5f));
@@ -427,16 +435,17 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
         BPM_Slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     }
     
-//    if (isPlaying)
+//    if (synchBool)
 //    {
-//        playStopBtnImageComp.setImage(stopBtnImage);
+//        if (btnBoolFromAudioThread.getBtnState())
+//        {
+//            playStopBtnImageComp.setImage(stopBtnImage);
+//        }
+//        else
+//        {
+//            playStopBtnImageComp.setImage(playBtnImage);
+//        }
 //    }
-//    
-//    else
-//    {
-//        playStopBtnImageComp.setImage(playBtnImage);
-//    }
-//    
     
     myBtn_one.disableSliders(xMode);
     myBtn_two.disableSliders(yMode);
@@ -834,12 +843,9 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
     
     if (button == &playStopBtn)
     {
-        //std::cout << "im calling this" << "\n";
         playStopBtnCount++;
         playStopBtnCount = playStopBtnCount % 2;
-        std::cout << playStopBtnCount << "\n";
     
-        
         switch (playStopBtnCount)
         {
         case 1:
