@@ -74,7 +74,7 @@ public:
     float apy_pos { 0 };
     float apcx_pos { 0 };
     float apcy_pos { 0 };
-    double inc { 0.0 };
+    //double inc { 0.0 };
     
 //    int note;
 //    int octave;

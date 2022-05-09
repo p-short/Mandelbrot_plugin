@@ -19,9 +19,8 @@ public:
     
     NoteOff(int _midiChannel, int _midiNote, float _velo);
     ~NoteOff();
-    void prepareInfo(double sampRate, int _no_noteDuration); //pass tempo and note duration
+    void prepareInfo(double sampRate, int _no_noteDuration, float _noteOff_bpm); //pass tempo and note duration
     void countNoteOffDurration(int bufferSize);
-    void getNoteOffMessage();
     bool getIsClick();
     bool getLatch();
     void setLatch(bool changeBool);

@@ -34,14 +34,16 @@ MyBtn::MyBtn()
     addAndMakeVisible(btn);
     btn.addListener(this);
     
+    //set overall look and feel of MyBtn sliders
+    getLookAndFeel().setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
+    getLookAndFeel().setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
+    getLookAndFeel().setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
+    
     //set up speed slider. this controls the frequency of the chosen modulation source
     speedSlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
     speedSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     speedSlider.setRange(0.0, 0.2, 0.001);
     speedSlider.setValue(0.0);
-    speedSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
-    speedSlider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
-    speedSlider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     addAndMakeVisible(speedSlider);
     speedSlider.addListener(this);
     
@@ -50,9 +52,6 @@ MyBtn::MyBtn()
     ampSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     ampSlider.setRange(0.0, 1.0, 0.001);
     ampSlider.setValue(0.0);
-    ampSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
-    ampSlider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
-    ampSlider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     addAndMakeVisible(ampSlider);
     ampSlider.addListener(this);
 }
@@ -61,10 +60,12 @@ MyBtn::~MyBtn()
 {
 }
 
+//draw labels to MyBtn
 void MyBtn::paint (juce::Graphics& g)
 {
     g.setColour(juce::Colours::white);
     g.setFont(12);
+    //"modName" in main title and text offset of MyBtn is passed in and initialised in the setModName method.
     g.drawText(modName + " Pos Mod", textOffset, 0, 100, 20, juce::Justification::horizontallyJustified);
     g.setColour(juce::Colours::black);
     g.drawText("Speed", 17, 15, 100, 20, juce::Justification::horizontallyJustified);
@@ -99,20 +100,12 @@ void MyBtn::buttonClicked(juce::Button* button)
     }
 }
 
+//pure vitual function needs to be included
 void MyBtn::sliderValueChanged(juce::Slider* slider)
 {
-    if (slider == &speedSlider)
-    {
-        
-    }
-    
-    if (slider == &ampSlider)
-    {
-        
-    }
 }
 
-//set size and position of myBtn
+//set size and position of the components of myBtn
 void MyBtn::resized()
 {
     speedSlider.setBounds(0, 27, 65, 20);
@@ -139,6 +132,7 @@ float MyBtn::getAmpSliderVal()
     return ampSlider.getValue();
 }
 
+//arguments pass set the string and text offset used in the paint method
 void MyBtn::setModName(std::string _modName, float _textOffset)
 {
     modName = _modName;

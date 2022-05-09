@@ -48,7 +48,6 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     //XPOS SLIDER
     //this slider moves the position of the node circles on the x axis
     //set all the sliders to the same colours
-    
     getLookAndFeel().setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
     getLookAndFeel().setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
     getLookAndFeel().setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
@@ -247,93 +246,95 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     addAndMakeVisible(playStopBtn);
     playStopBtn.addListener(this);
 
-    
-    //custom buttons
+    //custom modulation section
+    //make them visiable to the GUI
     addAndMakeVisible(myBtn_one);
     addAndMakeVisible(myBtn_two);
     addAndMakeVisible(myBtn_three);
     addAndMakeVisible(myBtn_four);
     
+    //each modulation section has a different title so the setModName passes the string and position offset to the paint method inside the MyBtn class.
     myBtn_one.setModName("X", 8);
     myBtn_two.setModName("Y", 8);
     myBtn_three.setModName("XOS", 0);
     myBtn_four.setModName("YOS", 0);
     
     //lamda functions for button clicked inside MyBtn class.
+    //the methods are at the bottom of this file, they just check the button count inside the MyBtn class then according to that change the mode of its respective modulation source.
     myBtn_one.btn.onClick = [this] { btnOneIsClicked(); };
     myBtn_two.btn.onClick = [this] { btnTwoIsClicked(); };
     myBtn_three.btn.onClick = [this] { btnThreeIsClicked(); };
     myBtn_four.btn.onClick = [this] { btnFourIsClicked(); };
     
-    //set all mode to slider as default
+    //set all modes  of each position modulation  section to slider as default
     xMode = "slider"; yMode = "slider"; cxMode = "slider"; cyMode = "slider";
     
     //start timer to create a loop for animation
     Timer::startTimer(60);
+    //set size of the plugin window
     setSize (600, 400);
 }
 
+//destructor turns off timer when program is closed
 Mandelbrot_pluginAudioProcessorEditor::~Mandelbrot_pluginAudioProcessorEditor()
 {
     Timer::stopTimer();
 }
 
+//paint method draws on to the UI repaint() is called in the timerCallback so its called aproximently 60 times ever second, this alows for animation.
 //==============================================================================
 void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    // drawing big circle with rotating arm
     g.saveState();
+    //fill background grey
     g.fillAll (juce::Colours::dimgrey);
+    //change colour to black, draw border circle in the centre of the UI
     g.setColour(juce::Colours::black);
     g.drawEllipse(300 - borderRadius, 220 - borderRadius, borderRadius * 2, borderRadius * 2, 2);
+    //translate origin to center of the UI
     g.setOrigin(getWidth() / 2, getHeight() / 2 + 20);
+    //draw a line from the centre of the UI to the edge of the border circle. when rotation is started with each run of the timerCallback the rotation value is fetched from the audio thread using an atomic, this ensures a full rotation of the circle is allways in time according to the BPM selected, this value is then stored in the rotation varibale
     g.drawLine(0, 0, borderRadius * cos(rotation), borderRadius * sin(rotation), 1);
     
     
-    //scale returns 0, 1, 2, 3
     
-//    std::cout << "x : " << vectorOfSpheres[14]->getXPos() << "\n" <<
-//    "y : " <<vectorOfSpheres[14]->getYPos() << "\n";
-    
-    if (scale <= editorScalesVector.size() - 1)
+  
+    //loop up to the note amount value, this can be changed on the UI by moving the the note amount slider
+    for (auto i = 0; i < noteAmount.getValue(); i++) //editorScalesVector[scale].size()
     {
-    
-        for (auto i = 0; i < noteAmount.getValue(); i++) //editorScalesVector[scale].size()
+        //when a node circle is tangent or is intersecting the rotating arm change colour to have no transparency
+        //this is just a visual cue to represent the audio equivalent.
+        if (vectorOfSpheres[i]->checkForPaint(rotation) && isPlaying)
         {
-            if (vectorOfSpheres[i]->checkForPaint(rotation) && isPlaying)
-            {
-                g.setColour(juce::Colour::fromFloatRGBA (0.996f, 0.509f, 0.549f, 1.0f));
-            }
-            
-            else
-            {
-                g.setColour(juce::Colour::fromFloatRGBA (0.996f, 0.509f, 0.549f, 0.5f));
-            }
-            
-            g.fillEllipse((vectorOfSpheres[i]->getXPos() * (borderRadius - sphereRad - 1)) - sphereRad,
-                          (vectorOfSpheres[i]->getYPos() * (borderRadius - sphereRad - 1)) - sphereRad,
-                          sphereRad * 2, sphereRad * 2);
-            
-            //line of scalar projection
-//            g.setColour(juce::Colours::green);
-//            g.drawLine(vectorOfSpheres[i]->getXPos() * 160, vectorOfSpheres[i]->getYPos() * 160,
-//                       vectorOfSpheres[i]->spx, vectorOfSpheres[i]->spy, 3);
+            g.setColour(juce::Colour::fromFloatRGBA (0.996f, 0.509f, 0.549f, 1.0f));
         }
+        //when a node circle is not tangent or is intersecting the rotating paint it with some alpha so its appears transparent.
+        else
+        {
+            g.setColour(juce::Colour::fromFloatRGBA (0.996f, 0.509f, 0.549f, 0.5f));
+        }
+        //loop through vector and draw each node cricle at its own position, the values from the get x & y pos methods are normilised so the values are multiplied but the border circles radius minus the radius of the node circles to always be drawn in and up to the border circle. The fillEllipse method dosent draw an ellipse centred around its coordinates, its draws it from the top left of the coordinates, thats why I've subtracted the node circles radius from the x and y axis
+        g.fillEllipse((vectorOfSpheres[i]->getXPos() * (borderRadius - sphereRad - 1)) - sphereRad,
+                      (vectorOfSpheres[i]->getYPos() * (borderRadius - sphereRad - 1)) - sphereRad,
+                      sphereRad * 2, sphereRad * 2);
         
-        for (auto j = 0; j < noteAmount.getValue() -1; j++)
-        {
-            g.setColour(juce::Colours::white);
-            g.drawLine(vectorOfSpheres[j]->getXPos() * (borderRadius - (sphereRad)),
-                       vectorOfSpheres[j]->getYPos() * (borderRadius - (sphereRad)),
-                       vectorOfSpheres[j +1]->getXPos() * (borderRadius - (sphereRad)),
-                       vectorOfSpheres[j +1]->getYPos() * (borderRadius - (sphereRad)), 0.5);
-        }
+
+    }
+    //draw white lines connecting all the node circles.
+    for (auto j = 0; j < noteAmount.getValue() -1; j++)
+    {
+        g.setColour(juce::Colours::white);
+        g.drawLine(vectorOfSpheres[j]->getXPos() * (borderRadius - (sphereRad)),
+                   vectorOfSpheres[j]->getYPos() * (borderRadius - (sphereRad)),
+                   vectorOfSpheres[j +1]->getXPos() * (borderRadius - (sphereRad)),
+                   vectorOfSpheres[j +1]->getYPos() * (borderRadius - (sphereRad)), 0.5);
     }
     
-
     
+//restore state before translation to the middle of the UI
     g.restoreState();
     
+    //-----UI LABELS-----\\
     //scale selection label
     g.setColour(juce::Colours::white);
     g.drawText("Scale Selection", 75, 4, 200, 20, juce::Justification::topLeft);
@@ -354,11 +355,11 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     g.setColour(juce::Colours::black);
     
     //note duration slider label
-    
     g.drawText("Note Duration", 410, 68, 200, 20, juce::Justification::topLeft);
     
     //x label
     g.saveState();
+    //rotate label 90 degrees anticlock wise so text is displyed vertically
     g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi, 4, 216));
     g.drawText("x axis", 4, 216, 100, 50, juce::Justification::topLeft);
     g.restoreState();
@@ -381,36 +382,42 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     g.drawText("y offset", 579, 222, 100, 50, juce::Justification::topLeft);
     g.restoreState();
     
+    //useful variables used to place strings round note duration silder on a curve.
     //center of the note duration component
     float centreX = noteDuration_slider.getX() + 30;
     float centreY = noteDuration_slider.getY() + 30;
-    float myAng = M_PI / 2 + M_PI / 4;
+    float myAng = 2.35619449;
     float num2DivBy  = 6;
     float rangeInRad = 4.71238898;
     float step = rangeInRad / num2DivBy;
+    //offset to move text by
     float textRad = 32.5;
     
     //array of strings that indercate the note duration these are then drawn around the dial corresponding with the dials steps.
     std::array<std::string, 7> stringArray = {"Imp", "1/32", "1/16", "1/8", "1/4", "1/2", "1"};
     
+    //save state and reduce font size
     g.saveState();
     g.setFont(10.0);
+    //loop through and draw each string in stringArray round the dial
     for (int i = 0; i < 7; i++)
     {
         g.drawText(stringArray[i], centreX + textRad * cos(myAng + i * step) - 10, centreY + textRad * sin(myAng + i * step) - 10, 20, 20, juce::Justification::horizontallyCentred);
     }
 }
 
-
+//timerCallback is called 60 times a second
 void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
 {
+    //call repaint method this create a draw loop for animation similar to p5.js / processing
     repaint();
     
+    //rotationValue.getValue() fetches rotation value from audio thread each time timerCallback is called and stores it in "rotation".
     rotation = rotationValue.getValue();
     
-    //is synch button is pressed disable bpm slider from being dragged by mouse and set the sliders values to the DAWs tempo from audio thread.
     if (synchBool)
     {
+        //find out if playing from the DAW and set isPlaying accordingly, this is because isPlaying is used to light up node circles in the paint method.
         if (btnBoolFromAudioThread.getBtnState())
         {
             isPlaying = true;
@@ -419,16 +426,17 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
         {
             isPlaying = false;
         }
+        //is synch button is pressed disable bpm slider from being dragged by mouse and set the sliders values to the DAWs tempo from audio thread.
         BPM_Slider.setEnabled(false);
         BPM_Slider.setValue(bpmFromAudioThread.getBPM());
+        //grey out slider when its disabled
         BPM_Slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126).withAlpha(0.5f));
         BPM_Slider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
         BPM_Slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
-//        playStopBtn.setEnabled(false);
     }
     else
     {
-    
+        //if synch button is not pressed enable bpm slider
         BPM_Slider.setEnabled(true);
         BPM_Slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
         BPM_Slider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68));
@@ -447,35 +455,41 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
 //        }
 //    }
     
+    //disableSliders method passes a string to MyBtn class, if the string == "slider" then the sliders on MyBtn will be disabled and greyed out if string != "slider" then MyBtn sliders will be enabled again.
     myBtn_one.disableSliders(xMode);
     myBtn_two.disableSliders(yMode);
     myBtn_three.disableSliders(cxMode);
     myBtn_four.disableSliders(cyMode);
     
-    // remember to send these to audio processer to collision detection matches up.
+    //position modulation source
     
-    //xMode code
+    //xMode position modulation source
+    
+    //each time the button is pressed on the position modulation section the buttonClicked functions at the bottom of the file return a string according to the MyBtn buttonCount.
+    //if xMode is assigned the string "slider" is takes the value from the xPos_Slider and stores it in xPos
     if (xMode == "slider")
     {
         xPos = xPos_Slider.getValue();
     }
-    
+    //if xMode is assigned the string "sin" xPos is set to a sin function with the parameter of "xFreq" which is a float value that counts up in the increment set by the MyBtn speed slider, this creates an oscillating motion on the x axis that can be scaled by multiplying  it by MyBtns getAmpSlider method.
     else if (xMode == "sin")
     {
         xPos = sin(xFreq) * myBtn_one.getAmpSliderVal();
     }
-    
+    //if xMode is assigned the string "cos" xPos is set to a cosine function with the parameter of "xFreq" which is a float value that counts up in the increment set by the MyBtn speed slider, this creates an oscillating motion on the x axis that can be scaled by multiplying  it by MyBtns getAmpSlider method.
     else if (xMode == "cos")
     {
         xPos = cos(xFreq) * myBtn_one.getAmpSliderVal();
     }
-    
+    //if xMode is assigned the string "noise" xPos is set to a noise function with the parameter of "xFreq" which is a float value that counts up in the increment set by the MyBtn speed slider, this creates a smoothed random motion on the x axis that can be scaled by multiplying  it by MyBtns getAmpSlider method.
+    //see noise.h for implementation of Perlin noise
     else if (xMode == "noise")
     {
         xPos = myPerlinNoise(xFreq) * myBtn_one.getAmpSliderVal();
     }
     
-    //yMode code
+    //yMode position modulation source
+    //this block of code serves the same function as the one above, it picks the soruce of position modulation on the y axis
     if (yMode == "slider")
     {
         yPos = yPos_Slider.getValue();
@@ -496,7 +510,9 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
         yPos = myPerlinNoise(yFreq) * myBtn_two.getAmpSliderVal();
     }
     
-    //cxMode code
+    //cxMode position modulation source
+    //this block of code serves the same function as the one above, it picks the soruce of position modulation for the x axis offset. This moves the point that all node circles tend to along the x axis
+    
     if (cxMode == "slider")
     {
         cxPos = constXOffSet.getValue();
@@ -517,7 +533,8 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
         cxPos = myPerlinNoise(cxFreq) * myBtn_three.getAmpSliderVal();
     }
     
-    //cyMode code
+    //cyMode position modulation source
+    //this block of code serves the same function as the one above, it picks the soruce of position modulation for the y axis offset. This moves the point that all node circles tend to along the xyaxis
     if (cyMode == "slider")
     {
         cyPos = constYOffSet.getValue();
@@ -539,10 +556,13 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     }
     
     //xFreq logic
+    // the xFreq value is used above to oscillate the sin, cosine and noise functions at a certain frequency, this is determined using the MyBtn speed slider.
     
     if (xMode != "slider")
     {
+        //if xmode isn't equal to "slider" then increment "xFreq" according to speedSlider value
         xFreq += myBtn_one.getSpeedSliderVal();
+        //disable xPos_Slider so it cannot be moved and grey it out by giving it some transparency to represent that its been disabled
         xPos_Slider.setEnabled(false);
         xPos_Slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126).withAlpha(0.5f));
         xPos_Slider.setColour(juce::Slider::ColourIds::backgroundColourId, juce::Colour(36, 44, 68).withAlpha(0.5f));
@@ -551,6 +571,8 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     
     else
     {
+        //if xMode == "slider" then set "xFreq" to 0 stopping any kind of oscillation.
+        //enable xPos_Slider so it can be moved and remove the sliders transparency to represent its enabled again.
         xFreq = 0;
         xPos_Slider.setEnabled(true);
         xPos_Slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colour(225, 40, 126));
@@ -559,7 +581,7 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     }
     
     //yFreq logic
-    
+    //this block of code serves the same function as the one above but for the y axis position modulation section
     if (yMode != "slider")
     {
         yFreq += myBtn_two.getSpeedSliderVal();
@@ -579,7 +601,7 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     }
     
     //cxFreq logic
-    
+    //this block of code serves the same function as the one above but for the x axis off set position modulation section
     if (cxMode != "slider")
     {
         cxFreq += myBtn_three.getSpeedSliderVal();
@@ -599,7 +621,7 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     }
     
     //cyFreq logic
-    
+    //this block of code serves the same function as the one above but for the y axis off set position modulation section
     if (cyMode != "slider")
     {
         cyFreq += myBtn_four.getSpeedSliderVal();
@@ -619,73 +641,28 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
         constYOffSet.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     }
    
+    //loop through vector and use the xPos, yPos, cxPos and cyPos variables which are calculated above to set, update and limit the position of each node circle
     for (int i = 0; i < vectorOfSpheres.size(); i++)
     {
-//        midiNote = rootNote + scalesVector[scale][i];
         vectorOfSpheres[i]->setPosition(xPos, yPos, cxPos, cyPos);
         vectorOfSpheres[i]->updatePosition(vectorOfSpheres);
         vectorOfSpheres[i]->limitSphere();
-        
-//        if (vectorOfSpheres[i]->checkIntersection(t, vectorOfSpheres[i]->getSphereBool()))
-//        {
-//            
-////                std::cout << "shpere " << i + 1 << " boom" << std::endl;
-//                //std::cout << midiNote << std::endl;
-//                vectorOfSpheres[i]->setSphereBool(false);
-//        }
-        
     }
     
-    //update speed acording to speed buttons
-    if (isPlaying)
-    {
-        t += (M_PI * 2) / (60 / (BPM_Slider.getValue() / 4) / divBy * 60);
-        //TWO_PI / (60 / (BPMslider.value() / 4) / divBy * 60)
-    }
-    
-    else
-    {
-        t = -M_PI / 2;
-    }
-    
-    audioProcessor.inc = t;
-    
+
+    //send relevant variables to the audio thread so then can be used to trigger the midi output
     audioProcessor.apx_pos = xPos;
     audioProcessor.apy_pos = yPos;
     audioProcessor.apcx_pos = cxPos;
     audioProcessor.apcy_pos = cyPos;
-    
     audioProcessor.apNoteAmount = noteAmount.getValue();
     audioProcessor.apNoteDuration = noteDuration_slider.getValue();
     audioProcessor.apBPM = BPM_Slider.getValue();
-    
-//    std::cout << "val of x : " << vectorOfSpheres[14]->getXPos() << "\n";
 }
 
-// listen for slider value changes, pass them to variables in Sphere instance
+//pure virtual function that needs to be included
 void Mandelbrot_pluginAudioProcessorEditor::sliderValueChanged(juce::Slider *slider)
 {
-    //this will be problematic later WATCH OUT.
-    if (slider == & xPos_Slider)
-    {
-//        audioProcessor.apx_pos = xPos;
-    }
-    else if (slider == & yPos_Slider)
-    {
-//        audioProcessor.apy_pos = yPos;
-    }
-    else if (slider == & BPM_Slider)
-    {
-        //speed = fullRotation;
-    }
-    else if (slider == & constXOffSet)
-    {
-//        audioProcessor.apcx_pos = constXOffSet.getValue();
-    }
-    else if (slider == & constYOffSet)
-    {
-//        audioProcessor.apcy_pos = constYOffSet.getValue();
-    }
 }
 
 void Mandelbrot_pluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox* box)

@@ -220,7 +220,6 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
 //            apIsPlaying = false;
 //        }
         
-        std::cout << apIsPlaying << "\n";
     
         //get info from host, pass the atomic a starting angle and make appropriate calculations
         double numSampsInBar = (60 / tempBPM * getSampleRate()) / apPlaybackSpeed; // 128 = double time. 64 = normal 32 = halfspeed.
@@ -275,14 +274,13 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
         {
             if (!noteOffVector[i]->getIsClick())
             {
-                noteOffVector[i]->prepareInfo(getSampleRate(), apNoteDuration);
+                noteOffVector[i]->prepareInfo(getSampleRate(), apNoteDuration, tempBPM);
                 noteOffVector[i]->countNoteOffDurration(bufferForClass);
             }
 
             else if (noteOffVector[i]->getIsClick() && noteOffVector[i]->getLatch())
             {
                 //have function return a midi event insted of printing to the consle.
-                noteOffVector[i]->getNoteOffMessage();
                 auto offMessage = juce::MidiMessage::noteOff(noteOffVector[i]->noteOff_midiChannel,
                                                              noteOffVector[i]->noteOff_midiNote,
                                                              noteOffVector[i]->noteOff_velo);

@@ -63,9 +63,7 @@ public:
     Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor&);
     ~Mandelbrot_pluginAudioProcessorEditor() override;
     int borderRadius = 140;
-    int smallerBorderRadius = 130;
     int sphereRad = 7;
-    double t { -M_PI / 2 };
 //    double speed { 0.0 };
     float divBy { 1.0 };
 //    float fullRotation;
