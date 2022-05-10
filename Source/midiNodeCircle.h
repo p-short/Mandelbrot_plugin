@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    sphereLogic.h
+    MidiNodeCircle.h
     Created: 19 Feb 2022 12:28:43pm
     Author:  Iansyst Loan
 
@@ -13,14 +13,14 @@
 #include <JuceHeader.h>
 #include "myFunctions.h"
 
-class SphereLogic {
+class MidiNodeCircle {
 public:
-    SphereLogic();
-    ~SphereLogic();
-    
+    MidiNodeCircle();
+    ~MidiNodeCircle();
+    //midiNodeCircle methods. This is essentualy identical to the NodeCircle class that handles the GUI animation but the MidiNodeCircle class handles the triggering of midinotes
     void setPosition(float _x, float _y, float _cx, float _cy);
-    void updatePosition(std::vector<std::unique_ptr<SphereLogic>>&);
-    void limitSphere();
+    void updatePosition(std::vector<std::unique_ptr<MidiNodeCircle>>&);
+    void limitNodeCircle();
     bool checkIntersection(double &rotatingArm, bool other);
     void setSphereBool(bool myBool);
     bool getSphereBool();
@@ -30,6 +30,7 @@ public:
     
 private:
     
+    //private member variables
     float x;
     float y;
     float cx;

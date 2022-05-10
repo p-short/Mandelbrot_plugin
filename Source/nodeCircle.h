@@ -16,16 +16,18 @@
 //==============================================================================
 /*
 */
-class Sphere  : public juce::Component
+
+//inherit form component class
+class NodeCircle : public juce::Component
 {
 public:
-    Sphere(); 
-    ~Sphere() override;
+    NodeCircle();
+    ~NodeCircle() override;
     
+    //Node circle methods
     void setPosition(float x_, float y_, float cx_, float cy_);
-    void updatePosition(std::vector<std::unique_ptr<Sphere>>&);
-    void limitSphere();
-//    bool checkIntersection(double &rotatingArm, bool other);
+    void updatePosition(std::vector<std::unique_ptr<NodeCircle>>&);
+    void limitPosition();
     bool checkForPaint(double inc);
     double getXPos();
     double getYPos();
@@ -34,12 +36,7 @@ public:
     
 private:
     
-    float x;
-    float y;
-    float cx;
-    float cy;
-    double spx;
-    double spy;
+    //instances of Coord objects (see myFunctions .h & .cpp)
     Coord cp;
     Coord mp;
     Coord vecA;
@@ -49,17 +46,25 @@ private:
     Coord nVecA;
     Coord newMP;
     Coord vecB;
+    
+    //variable used in the calculation of nodeCircles position
+    float x;
+    float y;
+    float cx;
+    float cy;
+    double spx;
+    double spy;
     float magVecA;
     float phi;
     float dist0;
     float dist1;
     float dist2;
     double scalarProjection;
-    int sphereRadius { 7 };
+    int nodeCircleRadius { 7 };
     int bordRad { 140 };
     float newX { 0 };
     float newY { 0 };
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Sphere)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NodeCircle)
 };
 
 

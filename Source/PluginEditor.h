@@ -10,7 +10,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "Sphere.h"
+#include "nodeCircle.h"
 #include "myFunctions.h"
 #include "MyBtn.h"
 
@@ -200,7 +200,7 @@ private:
     double rotation { -M_PI / 2 };
 
     //vector to store instances of node circle class
-    std::vector<std::unique_ptr<Sphere>> vectorOfSpheres;
+    std::vector<std::unique_ptr<NodeCircle>> vectorOfNodeCircles;
     
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.

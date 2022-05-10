@@ -9,7 +9,7 @@
 #include <iostream>
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-#include "Sphere.h"
+#include "nodeCircle.h"
 #include "noise.h"
 
 //the PluginEditor is where the GUI components are put together to produced the UI. Its also where the node circles are rendered on the the UI
@@ -35,7 +35,7 @@ Mandelbrot_pluginAudioProcessorEditor::Mandelbrot_pluginAudioProcessorEditor (Ma
     //now we know the maximum amount of node circles we need, create them and push them into a vector
     for (auto i = 0; i < editorMaxVectorSize; i++)
     {
-        vectorOfSpheres.push_back(std::make_unique<Sphere>());
+        vectorOfNodeCircles.push_back(std::make_unique<NodeCircle>());
     }
     
     //this is to enable automation of certain parameters from within the plug-in host (your DAW)
@@ -304,7 +304,7 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     {
         //when a node circle is tangent or is intersecting the rotating arm change colour to have no transparency
         //this is just a visual cue to represent the audio equivalent.
-        if (vectorOfSpheres[i]->checkForPaint(rotation) && isPlaying)
+        if (vectorOfNodeCircles[i]->checkForPaint(rotation) && isPlaying)
         {
             g.setColour(juce::Colour::fromFloatRGBA (0.996f, 0.509f, 0.549f, 1.0f));
         }
@@ -314,8 +314,8 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
             g.setColour(juce::Colour::fromFloatRGBA (0.996f, 0.509f, 0.549f, 0.5f));
         }
         //loop through vector and draw each node cricle at its own position, the values from the get x & y pos methods are normilised so the values are multiplied but the border circles radius minus the radius of the node circles to always be drawn in and up to the border circle. The fillEllipse method dosent draw an ellipse centred around its coordinates, its draws it from the top left of the coordinates, thats why I've subtracted the node circles radius from the x and y axis
-        g.fillEllipse((vectorOfSpheres[i]->getXPos() * (borderRadius - sphereRad - 1)) - sphereRad,
-                      (vectorOfSpheres[i]->getYPos() * (borderRadius - sphereRad - 1)) - sphereRad,
+        g.fillEllipse((vectorOfNodeCircles[i]->getXPos() * (borderRadius - sphereRad - 1)) - sphereRad,
+                      (vectorOfNodeCircles[i]->getYPos() * (borderRadius - sphereRad - 1)) - sphereRad,
                       sphereRad * 2, sphereRad * 2);
         
 
@@ -324,10 +324,10 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     for (auto j = 0; j < noteAmount.getValue() -1; j++)
     {
         g.setColour(juce::Colours::white);
-        g.drawLine(vectorOfSpheres[j]->getXPos() * (borderRadius - (sphereRad)),
-                   vectorOfSpheres[j]->getYPos() * (borderRadius - (sphereRad)),
-                   vectorOfSpheres[j +1]->getXPos() * (borderRadius - (sphereRad)),
-                   vectorOfSpheres[j +1]->getYPos() * (borderRadius - (sphereRad)), 0.5);
+        g.drawLine(vectorOfNodeCircles[j]->getXPos() * (borderRadius - (sphereRad)),
+                   vectorOfNodeCircles[j]->getYPos() * (borderRadius - (sphereRad)),
+                   vectorOfNodeCircles[j +1]->getXPos() * (borderRadius - (sphereRad)),
+                   vectorOfNodeCircles[j +1]->getYPos() * (borderRadius - (sphereRad)), 0.5);
     }
     
     
@@ -642,11 +642,11 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     }
    
     //loop through vector and use the xPos, yPos, cxPos and cyPos variables which are calculated above to set, update and limit the position of each node circle
-    for (int i = 0; i < vectorOfSpheres.size(); i++)
+    for (int i = 0; i < vectorOfNodeCircles.size(); i++)
     {
-        vectorOfSpheres[i]->setPosition(xPos, yPos, cxPos, cyPos);
-        vectorOfSpheres[i]->updatePosition(vectorOfSpheres);
-        vectorOfSpheres[i]->limitSphere();
+        vectorOfNodeCircles[i]->setPosition(xPos, yPos, cxPos, cyPos);
+        vectorOfNodeCircles[i]->updatePosition(vectorOfNodeCircles);
+        vectorOfNodeCircles[i]->limitPosition();
     }
     
 
@@ -935,7 +935,7 @@ void Mandelbrot_pluginAudioProcessorEditor::resized()
     
     
     //Sphere instances
-    for (auto& sphere : vectorOfSpheres)
+    for (auto& sphere : vectorOfNodeCircles)
     {
         sphere->setBounds (getLocalBounds());
     }

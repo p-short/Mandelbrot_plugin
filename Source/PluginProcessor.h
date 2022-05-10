@@ -9,7 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "sphereLogic.h"
+#include "midiNodeCircle.h"
 #include "myFunctions.h"
 #include "NoteOff.h"
 
@@ -119,7 +119,7 @@ public:
 
 private:
     //vectors to contain class instances.
-    std::vector <std::unique_ptr <SphereLogic>> sphereLogicVector;
+    std::vector <std::unique_ptr <MidiNodeCircle>> midiNodeCircleVector;
     std::vector <std::unique_ptr <NoteOff>> noteOffVector;
     
     //==============================================================================

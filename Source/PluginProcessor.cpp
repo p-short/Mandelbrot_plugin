@@ -48,7 +48,7 @@ tree(*this, nullptr, "PARAMETER", { std::make_unique<juce::AudioParameterChoice>
     //an aproprate amount of sphere instances
     for (int i = 0; i < maxVectorSize; i++)
     {
-        sphereLogicVector.push_back(std::make_unique<SphereLogic>());
+        midiNodeCircleVector.push_back(std::make_unique<MidiNodeCircle>());
     }
 }
 
@@ -227,17 +227,17 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     for (int i = 0; i < apNoteAmount; i++) //scalesVector[apScale].size()
     {
         //loop through and set, update and limit the node circles. Note that unlike the GUI thread this isn't actually rendering anything. its purley for collision detection so we know when to trigger notes or note.
-        sphereLogicVector[i]->setPosition(apx_pos, apy_pos, apcx_pos, apcy_pos);
-        sphereLogicVector[i]->updatePosition(sphereLogicVector);
-        sphereLogicVector[i]->limitSphere();
+        midiNodeCircleVector[i]->setPosition(apx_pos, apy_pos, apcx_pos, apcy_pos);
+        midiNodeCircleVector[i]->updatePosition(midiNodeCircleVector);
+        midiNodeCircleVector[i]->limitNodeCircle();
 
         //check if rotating arm has collided with any node circle
-            if (sphereLogicVector[i]->checkIntersection(startAng, sphereLogicVector[i]->getSphereBool()) && apIsPlaying)
+            if (midiNodeCircleVector[i]->checkIntersection(startAng, midiNodeCircleVector[i]->getSphereBool()) && apIsPlaying)
             {
                 //when hit, use the index of i to select the relevant integer (representing intervals in a scale) from the relevant vector (representing musical scales) + the rootnote to produce the midinote to be outputted
                 midiNote = apRootNote + scalesVector[apScale][i];
                 //when button is pressed "velocity" is set to the magnitude of the position of i from the centre of the border circle to its edges, this returns a normalised float, 0 if its in the centre and 1 if its flush with the border circles edge. If button not pressed a fixed velocity of 1 is set.
-                float velocity = (apIsVel) ? sphereLogicVector[i]->getMag() : 1.0f;
+                float velocity = (apIsVel) ? midiNodeCircleVector[i]->getMag() : 1.0f;
                 
                 //onMessage is a juce midinote object waiting to be added to the midibuffer
                 auto onMessage = juce::MidiMessage::noteOn(apMidiChan, midiNote, velocity);
@@ -261,7 +261,7 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
                     noteOffVector.push_back(std::make_unique<NoteOff>(apMidiChan, midiNote, velocity));
                 }
                 //after adding the midi note to the midi buffer set this node circle instance but to false so its only triggered once per collision.
-                sphereLogicVector[i]->setSphereBool(false);
+                midiNodeCircleVector[i]->setSphereBool(false);
             }
         }
         
