@@ -664,23 +664,27 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
 void Mandelbrot_pluginAudioProcessorEditor::sliderValueChanged(juce::Slider *slider)
 {
 }
-
+//pure virtual function that needs to be included , here you place code to be executed each time a specific combobox is clicked on.
 void Mandelbrot_pluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox* box)
 {
     if (box == &noteSelection)
     {
+        //each time noteSelection combobox is pressed store selected id in "note" and execute updateComboBoxes() which is detailed below.
+        //item ids cant be set to 0 so I have indexed them from 1 and then subtracted 1 from them to produce zero. "note" is used in selecting elements from vectors, so it was important that they are zero indexed.
         note = noteSelection.getSelectedId() - 1;
         updateComboBoxes();
     }
     
     if (box == &octaveSelection)
     {
+        //when octaveSelection combobox is clicked set "octave" to item id times 12, this increases / decreases the midinotes octave
         octave = (octaveSelection.getSelectedId() - 1) * 12;
         updateComboBoxes();
     }
     
     if (box == &scaleSelection)
     {
+        //when scaleSelection is clicked the "scale" is used to select a scale from a vector
         scale = scaleSelection.getSelectedId() - 1;
         audioProcessor.apScale = scaleSelection.getSelectedId() - 1;
         updateComboBoxes();
@@ -693,22 +697,32 @@ void Mandelbrot_pluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox* box)
     
     if (box == &midiChan)
     {
+        //when midiChan is clicked send selected midi channel to the audioprocessor
         audioProcessor.apMidiChan = midiChan.getSelectedId();
     }
-    
 }
 
+//each time an item is selected from a comobobox updateComboBoxes() is called. each time it updates the note and octave variables, the value of both are stored in "rootNote" which is in turn sent to the audioProcessor where its used to select midinotes to output.
+void Mandelbrot_pluginAudioProcessorEditor::updateComboBoxes()
+{
+//    rootNote = note + octave;
+    audioProcessor.apRootNote = note + octave;
+}
+
+//pure virtual function that needs to be included, here you place code to be executed each time a specific button is clicked on.
 void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
 {
     if (button == &synchBtn)
     {
-       
-        //eventully add the code to give plug acsess to Abeltons tempo.
+        
         if (synchBtnOnState == OnState::off)
         {
+            //if synch button is pressed disable playbutton
             playStopBtnImageComp.setImage(playBtnImage);
             playStopBtn.setEnabled(false);
+            //set enum class state to on
             synchBtnOnState = OnState::on;
+            //change colour so you know the button is pressed
             synchBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
             synchBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colour(36, 44, 68));
             synchBool = true;
@@ -716,8 +730,11 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
         
         else if (synchBtnOnState == OnState::on)
         {
+            //ifsynch button is not pressed enable playbutton
             playStopBtn.setEnabled(true);
+            //set enum class state to on
             synchBtnOnState = OnState::off;
+            //change colour so you know the button is pressed
             synchBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
             synchBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
             synchBool = false;
@@ -732,14 +749,17 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
         {
             playStopBtnCount = 0;
         }
+        //send synchBool to audioProcessor
         audioProcessor.apSynch = synchBool;
     }
     
     if (button == &doubleSpeedBtn)
     {
-        divBy = 2;
+        //divBy = 2;
+        //send the value 128 to audioProsessor this is used to double the speed of the arm rotation, this makes a full rotation every 4 beats
         audioProcessor.apPlaybackSpeed = 128;
         
+        //if any of the rotation speed buttons are pressed they untoggle the possiable previous rotation speed buttons, this ensures only one rotation speed button can be selected at any one time.
         normalSpeedBtnOnState = OnState::off;
         normalSpeedBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
         normalSpeedBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
@@ -750,7 +770,9 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
         
         if (doubleSpeedBtnOnState == OnState::off)
         {
+            //set enum class state to on
             doubleSpeedBtnOnState = OnState::on;
+            //change colour so you know the button is pressed
             doubleSpeedBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
             doubleSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colour(36, 44, 68));
         }
@@ -758,9 +780,10 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
     
     if (button == &normalSpeedBtn)
     {
-        divBy = 1;
+        //send the value 64 to audioProsessor this is used to increase / reduce the speed of the arm rotation, this makes a full rotation every 8 beats
         audioProcessor.apPlaybackSpeed = 64;
         
+        //untoogle other rotation speed buttons
         doubleSpeedBtnOnState = OnState::off;
         doubleSpeedBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
         doubleSpeedBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
@@ -771,7 +794,9 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
         
         if (normalSpeedBtnOnState == OnState::off)
         {
+            //set enum class state to on
             normalSpeedBtnOnState = OnState::on;
+            //change colour so you know the button is pressed
             normalSpeedBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
             normalSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colour(36, 44, 68));
         }
@@ -779,9 +804,10 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
     
     if (button == &halfSpeedBtn)
     {
-        divBy = 0.5;
+        //send the value 32 to audioProsessor this is used to reduce the speed of the arm rotation, this makes a full rotation every 16 beats
         audioProcessor.apPlaybackSpeed = 32;
         
+        //untoogle other rotation speed buttons
         doubleSpeedBtnOnState = OnState::off;
         doubleSpeedBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
         doubleSpeedBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgrey);
@@ -792,19 +818,27 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
         
         if (halfSpeedBtnOnState == OnState::off)
         {
+            //set enum class state to on
             halfSpeedBtnOnState = OnState::on;
+            //change colour so you know the button is pressed
             halfSpeedBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
             halfSpeedBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colour(36, 44, 68));
         }
     }
     
+    //when pressed the velBtn changes the velocity from a fixed maximum velocity to a velocity based on the position of each node circle in relation the border circle, this position is represented as a normalised float, the centre of the border circle being 0 and the edge of the border circle being 1, this is whats then used for the midinotes velocity when a node circle is tangent or intersects with the rotating arm.
     if (button == &velBtn)
     {
+        //velBtnCount is intalised to 0 at runtime
+        //each time the buttton is pressed increment velBtnCount by one
         velBtnCount++;
+        //velBtnCount base two so it can only be 0 or 1
         velBtnCount = velBtnCount % 2;
         
         if (velBtnCount == 1)
         {
+            //if velBtnCount is one toggle button on
+            //let the audioProcessor know velBtn is on
             audioProcessor.apIsVel = true;
             velBtn.setToggleState(true, juce::NotificationType::dontSendNotification);
             velBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colour(36, 44, 68));
@@ -812,6 +846,8 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
         
         else if (velBtnCount == 0)
         {
+            //if velBtnCount is zero toggle button off
+            //let the audioProcessor know velBtn is off
             audioProcessor.apIsVel = false;
             velBtn.setToggleState(false, juce::NotificationType::dontSendNotification);
             velBtn.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::darkgrey);
@@ -820,38 +856,41 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
     
     if (button == &playStopBtn)
     {
+        //playStopBtnCountis intalised to 0 at runtime
+        //each time the buttton is pressed increment playStopBtnCount by one
         playStopBtnCount++;
+        //playStopBtnCount base two so it can only be 0 or 1
         playStopBtnCount = playStopBtnCount % 2;
     
         switch (playStopBtnCount)
         {
         case 1:
-            //play
+            //isPlaying starts rotating arm
             isPlaying = true;
+            //when playing the buttons icon is a stop symbol
             playStopBtnImageComp.setImage(stopBtnImage);
             break;
         
         case 0:
             //stop
             isPlaying = false;
+            //when not playing the buttons icon is a play symbol symbol
             playStopBtnImageComp.setImage(playBtnImage);
             break;
         }
+        //let audioProcessor know the state of isPlaying
         audioProcessor.apisPlayBtn = isPlaying;
     }
 }
 
 
-void Mandelbrot_pluginAudioProcessorEditor::updateComboBoxes()
-{
-//    rootNote = note + octave;
-    audioProcessor.apRootNote = note + octave;
-}
 
+
+
+//the resized method is where specify where to place all the inderviual GUI components
 void Mandelbrot_pluginAudioProcessorEditor::resized()
 {
-    // set positions
-    
+
     //dropdown boxes
     int xSpacing = 5;
     int ySpacing = 25;
@@ -882,7 +921,6 @@ void Mandelbrot_pluginAudioProcessorEditor::resized()
     noteDuration_slider.setBounds(425, 90, 60, 60);
     
     //velocity button
-    
     velBtn.setBounds(275, 370, 50, 20);
     
     //play / stop button
@@ -910,6 +948,7 @@ void Mandelbrot_pluginAudioProcessorEditor::resized()
     constYOffSet.setBounds(getWidth() - 36, getHeight() / 2 - 80, 20, 165);
 }
 
+//the isClicked methods from here to the end of the file return a button count from each instance of MyBtn, that count is then used to select what mode each position modulation section should be in.
 void Mandelbrot_pluginAudioProcessorEditor::btnOneIsClicked()
 {
     switch(myBtn_one.getBtnCount()) {

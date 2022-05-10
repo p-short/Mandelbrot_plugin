@@ -15,6 +15,7 @@
 #include "MyBtn.h"
 
 //structs that contain atomics so data can be passed from the audio thread to the GUI thread reliably as they both run at different speeds.
+//AtomicRotation passes the rotation position in radians the the GUI thread
 struct AtomicRotation
 {
     AtomicRotation(std::atomic <double>& valueToUse) : value(valueToUse) {}
@@ -26,6 +27,7 @@ struct AtomicRotation
     std::atomic <double>& value;
 };
 
+//AtomicRotation passes the DAWs BPM to the the GUI thread
 struct AtomicBPM
 {
     AtomicBPM(std::atomic <int>& bpmToUse) : bpm(bpmToUse) {}
@@ -37,6 +39,7 @@ struct AtomicBPM
     std::atomic <int>& bpm;
 };
 
+//AtomicBtn passes the DAWs isPlaying bool to the the GUI thread
 struct AtomicBtn
 {
     AtomicBtn(std::atomic <bool>& btnStateToUse) : btnState(btnStateToUse) {}
@@ -52,6 +55,7 @@ struct AtomicBtn
 //==============================================================================
 /**
 */
+//inherit all the necessary classes for the pluginEditor
 class Mandelbrot_pluginAudioProcessorEditor  : public juce::AudioProcessorEditor
                                               ,public juce::Timer
                                               ,public juce::Slider::Listener
@@ -62,19 +66,18 @@ class Mandelbrot_pluginAudioProcessorEditor  : public juce::AudioProcessorEditor
 public:
     Mandelbrot_pluginAudioProcessorEditor (Mandelbrot_pluginAudioProcessor&);
     ~Mandelbrot_pluginAudioProcessorEditor() override;
+    
+    //variables for keeping track of the border and node circles radius
     int borderRadius = 140;
     int sphereRad = 7;
-//    double speed { 0.0 };
-    float divBy { 1.0 };
-//    float fullRotation;
-//    int synchBtnCount { 0 };
     
     int note;
     int octave;
     int scale;
     int rootNote;
     int midiNote;
-    int btnCount { 0 };
+    
+    //int btnCount { 0 };
     
     juce::Image sliderImage;
     juce::Image sinImage;
@@ -91,13 +94,14 @@ public:
     float cxFreq { 0 };
     float cyFreq { 0 };
     
+    //string to represent mode of position modulation sections
     std::string xMode;
     std::string yMode;
     std::string cxMode;
     std::string cyMode;
     
     /*
-     nested vector containing scales for later
+     nested vector containing musical scales
      [0] = major scale 1 oct,
      [1] = major scale 2 oct,
      [2] = minor scale 1 oct,
@@ -112,11 +116,13 @@ public:
                                                     {0, 4, 7, 11, 12, 16, 19, 23, 24, 28, 31, 35},
                                                     {0, 3, 7, 10, 12, 15, 19, 22, 24, 27, 31, 34}};
     
-    //atomics
+    //instances of atomics (written at the top of this file)
     AtomicRotation rotationValue;
     AtomicBPM bpmFromAudioThread;
     AtomicBtn btnBoolFromAudioThread;
     
+    //used to automate the item of the note selection combobox from inside the DAW
+    std::unique_ptr <juce::AudioProcessorValueTreeState::ComboBoxAttachment> comboAttach;
     
     //==============================================================================
     void paint (juce::Graphics&) override;
@@ -129,6 +135,7 @@ public:
 
 private:
     
+    //sliders
     juce::Slider xPos_Slider;
     juce::Slider yPos_Slider;
     juce::Slider BPM_Slider;
@@ -137,11 +144,13 @@ private:
     juce::Slider noteAmount;
     juce::Slider noteDuration_slider;
     
+    //Comboboxes
     juce::ComboBox noteSelection;
     juce::ComboBox octaveSelection;
     juce::ComboBox scaleSelection;
     juce::ComboBox midiChan;
     
+    //enum class used to declare if a button stat is on or off, used in the toggling of the rotation speed buttons buttons
     enum class OnState {
         on,
         off
@@ -151,48 +160,51 @@ private:
     OnState doubleSpeedBtnOnState { OnState::off };
     OnState normalSpeedBtnOnState { OnState::on };
     OnState halfSpeedBtnOnState { OnState::off };
-    int velBtnCount { 0 };
     
+    //button counters these are used to detect if a button is on / off used for the velocity & play/stop button
+    int velBtnCount { 0 };
+    int playStopBtnCount { 0 };
+    
+    //text buttons
     juce::TextButton synchBtn { "Synch" };
     juce::TextButton doubleSpeedBtn { "* 2" };
     juce::TextButton normalSpeedBtn { "* 1" };
     juce::TextButton halfSpeedBtn { "/ 2" };
     juce::TextButton velBtn { "Velocity" };
     
-    juce::ImageComponent btnImageComp;
-    juce::TextButton xModBtn;
-    juce::Slider xModSpeedSlider;
-    juce::Slider xModAmpSlider;
+   
     
+    //MyBtn instances
     MyBtn myBtn_one;
     MyBtn myBtn_two;
     MyBtn myBtn_three;
     MyBtn myBtn_four;
     
+    //declaring lamda functions for is clicked behaviour on MyBtn instances
     void btnOneIsClicked();
     void btnTwoIsClicked();
     void btnThreeIsClicked();
     void btnFourIsClicked();
     
+    //images containing play and stop icons for play/stop button
     juce::Image playBtnImage;
     juce::Image stopBtnImage;
     juce::ImageComponent playStopBtnImageComp;
     juce::TextButton playStopBtn;
-    int playStopBtnCount { 0 };
+    
+    //boolean values for keeping track of whats true or not
     bool isPlaying { false };
     bool synchBool { false };
- 
-
+    
+    //set rotation so the rotating arm is pointing directly upwards
     double rotation { -M_PI / 2 };
 
+    //vector to store instances of node circle class
     std::vector<std::unique_ptr<Sphere>> vectorOfSpheres;
     
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     Mandelbrot_pluginAudioProcessor& audioProcessor;
-    
-public:
-    std::unique_ptr <juce::AudioProcessorValueTreeState::ComboBoxAttachment> comboAttach;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Mandelbrot_pluginAudioProcessorEditor)
 };
