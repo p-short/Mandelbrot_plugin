@@ -297,8 +297,6 @@ void Mandelbrot_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     g.drawLine(0, 0, borderRadius * cos(rotation), borderRadius * sin(rotation), 1);
     
     
-    
-  
     //loop up to the note amount value, this can be changed on the UI by moving the the note amount slider
     for (auto i = 0; i < noteAmount.getValue(); i++) //editorScalesVector[scale].size()
     {
@@ -443,17 +441,7 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
         BPM_Slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(36, 44, 68));
     }
     
-//    if (synchBool)
-//    {
-//        if (btnBoolFromAudioThread.getBtnState())
-//        {
-//            playStopBtnImageComp.setImage(stopBtnImage);
-//        }
-//        else
-//        {
-//            playStopBtnImageComp.setImage(playBtnImage);
-//        }
-//    }
+
     
     //disableSliders method passes a string to MyBtn class, if the string == "slider" then the sliders on MyBtn will be disabled and greyed out if string != "slider" then MyBtn sliders will be enabled again.
     myBtn_one.disableSliders(xMode);
@@ -481,7 +469,7 @@ void Mandelbrot_pluginAudioProcessorEditor::timerCallback()
     {
         xPos = cos(xFreq) * myBtn_one.getAmpSliderVal();
     }
-    //if xMode is assigned the string "noise" xPos is set to a noise function with the parameter of "xFreq" which is a float value that counts up in the increment set by the MyBtn speed slider, this creates a smoothed random motion on the x axis that can be scaled by multiplying  it by MyBtns getAmpSlider method.
+    //if xMode is assigned the string "white noise" xPos is set to a noise function with the parameter of "xFreq" which is a float value that counts up in the increment set by the MyBtn speed slider, this creates a smoothed random motion on the x axis that can be scaled by multiplying  it by MyBtns getAmpSlider method.
     //see noise.h for implementation of Perlin noise
     else if (xMode == "noise")
     {
@@ -882,9 +870,6 @@ void Mandelbrot_pluginAudioProcessorEditor::buttonClicked(juce::Button* button)
         audioProcessor.apisPlayBtn = isPlaying;
     }
 }
-
-
-
 
 
 //the resized method is where specify where to place all the inderviual GUI components

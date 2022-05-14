@@ -10,8 +10,6 @@
 
 #include "myFunctions.h"
 
-
-
 //createCoord creates a Coord instance then instanciates the x & y variables with the value of the 2 arguments that are passed as parameters. createCoord then returns the struct with instanciated variables.
 Coord createCoord(float x_, float y_)
 {
@@ -20,7 +18,7 @@ Coord createCoord(float x_, float y_)
     coord_instance.y = y_;
     return coord_instance;
 }
-// createVector creates a Coord instance then subtracts the x & y values of the 2 Coord objects passed as parameters. createVector then returns new Coord instance which x & y values hold vectors between 2 Coords.
+// createVector creates a Coord instance then subtracts the x & y values of the 2 Coord objects passed as parameters. createVector then returns new Coord instance which x & y values hold vector between 2 Coords.
 Coord createVector(Coord v0, Coord v1)
 {
     Coord coord_instance;

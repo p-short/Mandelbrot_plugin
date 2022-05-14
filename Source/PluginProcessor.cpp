@@ -169,10 +169,7 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
         //store DAW info in myPlayHead pointer
         juce::AudioPlayHead::CurrentPositionInfo info;
         myPlayHead->getCurrentPosition(info);
-        
 
-        
-       
         if (!apSynch)
         {
             //if synch button is false then the bpm is set by the bpm GUI slider
@@ -208,8 +205,6 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
         }
         
 
-        
-    
         //get info from host, calculate what the rotation speed should be then send it to gui thread form the animations
         double numSampsInBar = (60 / tempBPM * getSampleRate()) / apPlaybackSpeed; // 128 = double time. 64 = normal 32 = halfspeed.
         double increment =  tp / numSampsInBar;
@@ -222,7 +217,6 @@ void Mandelbrot_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     
     auto bufferForClass = buffer.getNumSamples();
     
-
     //loop up untill apNoteAmount this can be changed in runtime via noteAmountSlider
     for (int i = 0; i < apNoteAmount; i++) //scalesVector[apScale].size()
     {

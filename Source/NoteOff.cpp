@@ -67,8 +67,6 @@ void NoteOff::countNoteOffDurration(int bufferSize)
     }
 }
 
-//getNoteOffMessage returns the midi note off event
-
 //returns isClick bool
 bool NoteOff::getIsClick()
 {

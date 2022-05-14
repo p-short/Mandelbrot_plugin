@@ -139,7 +139,7 @@ void MyBtn::setModName(std::string _modName, float _textOffset)
     textOffset = _textOffset;
 }
 
-// when myBtn is on slider mode remove some of the alpha from the sliders appearance and disable modulation section sliders so then cant be moved. When in slider mode only the sliders can move the position of the node circles.
+// when myBtn is on slider mode remove some of the alpha from the sliders appearance and disable modulation section sliders so they cant be moved. When in slider mode only the sliders can move the position of the node circles.
 void MyBtn::disableSliders(std::string _stringToCheck)
 {
     if (_stringToCheck == "slider")

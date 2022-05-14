@@ -15,6 +15,8 @@
 
 //myFunctions header and .cpp contain custom helper files which are used to relaise alot of the trigonometry and vector math used in the positioning of node circles and collision detection.
 
+//most of these helper were implemented after watching a coding math video that can be found here https://www.youtube.com/watch?v=V5Q5DVI2TjY
+
 //Coord is a struct that contains two float variables, x & y.
 struct Coord {
     float x;
